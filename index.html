@@ -560,10 +560,7 @@
       </div>
     </div>
     <div class="header-badge">
-      <div class="header-pill">
-        <span class="live-dot"></span>
-        Live API Connected
-      </div>
+      <span style="font-size:12px;font-weight:700;opacity:0.9">🇮🇳 Indian Railways</span>
     </div>
   </div>
 </header>
@@ -599,12 +596,6 @@
         <span id="btnText">Get Live Status</span>
       </button>
     </div>
-
-    <!-- Quick Test Pills -->
-    <div class="sample-pills">
-      <span class="sample-label">Test with verified PNR:</span>
-      <button class="sample-btn" onclick="testPNR('4558246012')">4558246012 (Vande Bharat)</button>
-    </div>
   </div>
 
   <!-- DYNAMIC CONTENT (Error / Loading / Results) -->
@@ -617,7 +608,7 @@
 
 <!-- FOOTER -->
 <footer class="page-footer">
-  <strong>IRCTC PNR Tracker</strong> — Direct live data via Indian Railways APIs (RailKit &amp; RapidAPI)<br>
+  <strong>IRCTC PNR Tracker</strong> — Real-Time Indian Railways Status &amp; Berth Allocation<br>
   Always carry a valid government photo ID along with your e-ticket while travelling.
 </footer>
 
@@ -637,11 +628,6 @@ $('pnrInput').addEventListener('input', e => {
 $('pnrInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') fetchLivePNR();
 });
-
-function testPNR(num) {
-  $('pnrInput').value = num;
-  fetchLivePNR();
-}
 
 function setLoading(on) {
   $('searchBtn').disabled = on;
