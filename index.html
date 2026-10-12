@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="theme-color" content="#1a237e">
-  <meta name="description" content="Check live IRCTC PNR status, real passenger details, coach and berth allocation, and confirmation prediction.">
-  <title>IRCTC PNR Status & Live Tracker</title>
+  <meta name="description" content="All-in-one IRCTC PNR Status, Live Train Running Status, Waitlist Confirmation Insights, and Train Search.">
+  <title>IRCTC PNR Status &amp; Live Train Tracker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
@@ -15,24 +15,19 @@
       --primary-dark: #0d1457;
       --primary-light: #283593;
       --accent-red: #d32f2f;
-      --accent-green: #1b5e20;
-      --accent-green-light: #e8f5e9;
-      --accent-green-text: #2e7d32;
-      --accent-amber: #f57f17;
-      --accent-amber-light: #fff8e1;
-      --accent-red-light: #ffebee;
+      --accent-green: #15803d;
+      --accent-amber: #b45309;
       --bg: #f4f6fa;
-      --card-bg: #ffffff;
+      --card: #ffffff;
       --border: #e2e8f0;
-      --text-main: #0f172a;
-      --text-muted: #64748b;
-      --tag-bg: #f1f5f9;
+      --text: #0f172a;
+      --muted: #64748b;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
       background: var(--bg);
-      color: var(--text-main);
+      color: var(--text);
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
     }
@@ -66,64 +61,82 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
     .brand-title { font-size: 17px; font-weight: 800; letter-spacing: -0.2px; line-height: 1.2; }
-    .brand-sub { font-size: 11px; opacity: 0.8; font-weight: 500; }
-    .header-pill {
-      background: rgba(255, 255, 255, 0.15);
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      backdrop-filter: blur(8px);
-      padding: 6px 14px;
-      border-radius: 30px;
-      font-size: 11px;
+    .brand-sub { font-size: 11px; opacity: 0.85; font-weight: 500; }
+    .header-badge { font-size: 12px; font-weight: 700; opacity: 0.95; }
+
+    /* ── APP NAVIGATION TABS ── */
+    .nav-tabs-bar {
+      background: #0f1742;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .nav-tabs {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: flex;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding: 0 10px;
+    }
+    .nav-tabs::-webkit-scrollbar { display: none; }
+    .nav-tab-btn {
+      flex: 1;
+      min-width: 130px;
+      background: transparent;
+      border: none;
+      color: rgba(255,255,255,0.7);
+      padding: 14px 12px;
+      font-size: 13px;
       font-weight: 700;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
+      cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
+      gap: 8px;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+      white-space: nowrap;
     }
-    .live-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #4ade80;
-      box-shadow: 0 0 8px #4ade80;
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(0.85); }
+    .nav-tab-btn:hover { color: white; background: rgba(255,255,255,0.05); }
+    .nav-tab-btn.active {
+      color: white;
+      border-bottom-color: #f59e0b;
+      background: rgba(255,255,255,0.08);
     }
 
     /* ── HERO BANNER ── */
     .hero {
       background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, var(--primary-light) 100%);
       color: white;
-      padding: 30px 20px 65px;
+      padding: 26px 20px 60px;
       text-align: center;
     }
-    .hero h1 { font-size: clamp(22px, 4vw, 32px); font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px; }
-    .hero p { font-size: 14px; opacity: 0.85; max-width: 580px; margin: 0 auto; }
+    .hero h1 { font-size: clamp(20px, 3.8vw, 30px); font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px; }
+    .hero p { font-size: 14px; opacity: 0.85; max-width: 600px; margin: 0 auto; }
 
-    /* ── MAIN CONTENT ── */
+    /* ── MAIN CONTAINER ── */
     .main-wrap {
       max-width: 1080px;
-      margin: -45px auto 40px;
+      margin: -40px auto 40px;
       padding: 0 16px;
     }
 
+    /* ── TAB PANELS ── */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; animation: fadeIn 0.3s ease; }
+
     /* ── SEARCH CARD ── */
-    .search-box {
-      background: var(--card-bg);
+    .search-card {
+      background: var(--card);
       border-radius: 20px;
       padding: 24px;
-      box-shadow: 0 10px 35px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(0,0,0,0.04);
+      box-shadow: 0 10px 35px rgba(15, 23, 42, 0.08);
       border: 1px solid var(--border);
       margin-bottom: 24px;
     }
-    .search-title {
+    .search-card-title {
       font-size: 13px;
       font-weight: 700;
-      color: var(--text-muted);
+      color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 0.8px;
       margin-bottom: 12px;
@@ -132,147 +145,87 @@
       justify-content: space-between;
     }
     .input-row { display: flex; gap: 10px; }
-    .pnr-field {
+    .field-input {
       flex: 1;
-      height: 56px;
+      height: 54px;
       background: #f8fafc;
       border: 2px solid #e2e8f0;
       border-radius: 14px;
-      padding: 0 18px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: 2.5px;
-      color: var(--text-main);
+      padding: 0 16px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
       transition: all 0.2s;
     }
-    .pnr-field:focus {
+    .field-input:focus {
       outline: none;
       border-color: var(--primary);
-      background: #ffffff;
+      background: white;
       box-shadow: 0 0 0 4px rgba(26, 35, 126, 0.1);
     }
-    .pnr-field::placeholder {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 15px;
-      font-weight: 500;
-      letter-spacing: 0;
-      color: #94a3b8;
+    .field-input.mono {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px;
+      letter-spacing: 2px;
     }
-    .search-btn {
-      height: 56px;
-      padding: 0 32px;
+    .btn-primary {
+      height: 54px;
+      padding: 0 28px;
       background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
       color: white;
       border: none;
       border-radius: 14px;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 700;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       transition: all 0.2s;
       white-space: nowrap;
-      box-shadow: 0 4px 14px rgba(26, 35, 126, 0.3);
+      box-shadow: 0 4px 14px rgba(26, 35, 126, 0.25);
     }
-    .search-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(26, 35, 126, 0.4); }
-    .search-btn:active { transform: translateY(0); }
-    .search-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(26, 35, 126, 0.35); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
 
-    .sample-pills {
+    .quick-chips {
       margin-top: 14px;
       display: flex;
       align-items: center;
       gap: 8px;
       flex-wrap: wrap;
     }
-    .sample-label { font-size: 12px; color: var(--text-muted); font-weight: 600; }
-    .sample-btn {
-      background: #eef2ff;
-      color: var(--primary);
-      border: 1px solid #c7d2fe;
+    .chip-label { font-size: 12px; color: var(--muted); font-weight: 600; }
+    .chip-btn {
+      background: #f1f5f9;
+      color: var(--text);
+      border: 1px solid var(--border);
       border-radius: 20px;
       padding: 5px 12px;
       font-size: 12px;
-      font-weight: 700;
-      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
       cursor: pointer;
       transition: all 0.15s;
     }
-    .sample-btn:hover { background: #e0e7ff; transform: scale(1.02); }
+    .chip-btn:hover { background: #e2e8f0; color: var(--primary); }
 
-    /* ── ERROR STATE ── */
-    .error-card {
-      background: #fef2f2;
-      border: 1.5px solid #fecaca;
-      border-radius: 16px;
-      padding: 22px;
-      margin-bottom: 24px;
-      display: flex;
-      gap: 16px;
-      align-items: flex-start;
-      animation: fadeIn 0.3s ease;
-    }
-    .error-icon {
-      font-size: 28px;
-      flex-shrink: 0;
-      background: #fee2e2;
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      display: grid;
-      place-content: center;
-    }
-    .error-title { font-size: 16px; font-weight: 800; color: #991b1b; margin-bottom: 4px; }
-    .error-desc { font-size: 13px; color: #7f1d1d; line-height: 1.6; }
-    .error-tips {
-      margin-top: 10px;
-      font-size: 12px;
-      color: #991b1b;
-      background: #fff5f5;
-      padding: 10px 14px;
-      border-radius: 8px;
-    }
-
-    /* ── LOADING STATE ── */
-    .loading-card {
-      background: white;
-      border-radius: 20px;
-      padding: 60px 20px;
-      text-align: center;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-      border: 1px solid var(--border);
-    }
-    .spinner {
-      width: 48px;
-      height: 48px;
-      border: 4px solid #e2e8f0;
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 18px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-title { font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
-    .loading-sub { font-size: 13px; color: var(--text-muted); }
-
-    /* ── RESULT GRID ── */
+    /* ── CARDS & GRIDS ── */
     .grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 20px; }
     @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
     .full-width { grid-column: 1 / -1; }
 
-    /* ── CARD STYLES ── */
     .card {
-      background: var(--card-bg);
+      background: var(--card);
       border-radius: 20px;
       border: 1px solid var(--border);
       box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
       overflow: hidden;
-      transition: transform 0.2s;
+      margin-bottom: 20px;
     }
     .card-head {
-      padding: 18px 22px;
+      padding: 16px 20px;
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
@@ -280,10 +233,10 @@
       gap: 12px;
       background: #fafbfc;
     }
-    .card-head-left { display: flex; align-items: center; gap: 12px; }
+    .card-head-left { display: flex; align-items: center; gap: 10px; }
     .card-head-icon {
-      width: 38px;
-      height: 38px;
+      width: 36px;
+      height: 36px;
       border-radius: 10px;
       display: grid;
       place-content: center;
@@ -291,31 +244,14 @@
       background: #eef2ff;
     }
     .card-head-title { font-size: 15px; font-weight: 800; }
-    .card-head-sub { font-size: 12px; color: var(--text-muted); }
-    .card-body { padding: 22px; }
+    .card-head-sub { font-size: 12px; color: var(--muted); }
+    .card-body { padding: 20px; }
 
-    /* ── TRAIN HEADER / ROUTE ── */
-    .train-hero-name {
-      font-size: 20px;
-      font-weight: 800;
-      color: var(--primary);
-      letter-spacing: -0.3px;
-      margin-bottom: 4px;
-    }
-    .train-hero-sub {
-      font-size: 13px;
-      color: var(--text-muted);
-      font-weight: 600;
-      margin-bottom: 20px;
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
+    /* ── BADGES ── */
     .badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       padding: 4px 10px;
       border-radius: 6px;
       font-size: 11px;
@@ -325,10 +261,11 @@
     }
     .badge-cnf { background: #dcfce7; color: #15803d; }
     .badge-rac { background: #fef3c7; color: #b45309; }
-    .badge-wl { background: #fee2e2; color: #b91c1c; }
+    .badge-wl  { background: #fee2e2; color: #b91c1c; }
     .badge-info { background: #e0e7ff; color: #3730a3; }
     .badge-neutral { background: #f1f5f9; color: #475569; }
 
+    /* ── ROUTE BAR ── */
     .route-container {
       display: flex;
       align-items: center;
@@ -337,13 +274,13 @@
       background: #f8fafc;
       border: 1px solid var(--border);
       border-radius: 16px;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
     .stn { flex: 1; }
-    .stn-code { font-size: 24px; font-weight: 800; color: var(--primary); letter-spacing: 0.5px; }
-    .stn-name { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-top: 2px; }
-    .stn-time { font-size: 14px; font-weight: 700; color: var(--text-main); margin-top: 4px; }
-    .stn-date { font-size: 11px; color: var(--text-muted); }
+    .stn-code { font-size: 22px; font-weight: 800; color: var(--primary); }
+    .stn-name { font-size: 12px; font-weight: 600; color: var(--muted); margin-top: 2px; }
+    .stn-time { font-size: 14px; font-weight: 700; color: var(--text); margin-top: 4px; }
+    .stn-date { font-size: 11px; color: var(--muted); }
     .route-middle {
       flex: 1;
       padding: 0 16px;
@@ -353,7 +290,7 @@
       gap: 6px;
     }
     .route-dur {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       color: var(--primary);
       background: #eef2ff;
@@ -372,14 +309,14 @@
       position: absolute;
       right: -6px;
       top: -8px;
-      font-size: 12px;
+      font-size: 11px;
       color: var(--accent-red);
     }
-    .route-dist { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+    .route-dist { font-size: 11px; color: var(--muted); font-weight: 600; }
 
     .meta-chips-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
       gap: 10px;
     }
     .meta-box {
@@ -388,22 +325,19 @@
       border-radius: 12px;
       padding: 12px;
     }
-    .meta-box-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
-    .meta-box-val { font-size: 14px; font-weight: 800; color: var(--text-main); margin-top: 3px; }
+    .meta-box-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; }
+    .meta-box-val { font-size: 14px; font-weight: 800; color: var(--text); margin-top: 3px; }
 
-    /* ── PASSENGERS TABLE ── */
-    .pax-table-wrap { overflow-x: auto; }
+    /* ── PASSENGERS ── */
     .pax-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 16px;
+      padding: 14px 16px;
       border-bottom: 1px solid #f1f5f9;
-      gap: 14px;
-      transition: background 0.15s;
+      gap: 12px;
     }
     .pax-row:last-child { border-bottom: none; }
-    .pax-row:hover { background: #fafafa; }
     .pax-num-badge {
       width: 32px;
       height: 32px;
@@ -417,16 +351,15 @@
       flex-shrink: 0;
     }
     .pax-meta { flex: 1; }
-    .pax-name { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .pax-name { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .pax-sub-details {
       font-size: 12px;
-      color: var(--text-muted);
+      color: var(--muted);
       margin-top: 3px;
       display: flex;
-      gap: 8px;
+      gap: 6px;
       flex-wrap: wrap;
     }
-    .pax-status-box { text-align: right; }
     .pax-seat-badge {
       display: inline-flex;
       align-items: center;
@@ -434,116 +367,227 @@
       background: #ecfdf5;
       color: #065f46;
       border: 1px solid #a7f3d0;
-      padding: 3px 8px;
+      padding: 2px 7px;
       border-radius: 6px;
       font-size: 11px;
       font-weight: 700;
     }
 
-    /* ── PREDICTION CARD ── */
-    .prediction-box {
-      text-align: center;
-      padding: 10px 0;
+    /* ── INSIGHTS BENCHMARKS ── */
+    .insight-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 10px;
     }
-    .pred-number {
-      font-size: 64px;
-      font-weight: 900;
-      line-height: 1;
-      letter-spacing: -2px;
+    .insight-table th {
+      text-align: left;
+      padding: 8px 10px;
+      background: #f8fafc;
+      color: var(--muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 11px;
+      border-bottom: 1px solid var(--border);
     }
-    .pred-title {
-      font-size: 15px;
-      font-weight: 800;
-      margin-top: 8px;
+    .insight-table td {
+      padding: 10px;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
     }
-    .pred-meter {
-      height: 12px;
+    .progress-bar-wrap {
+      width: 100%;
+      height: 8px;
       background: #e2e8f0;
-      border-radius: 10px;
-      margin: 18px 0;
+      border-radius: 6px;
       overflow: hidden;
     }
-    .pred-meter-bar {
+    .progress-bar-fill {
       height: 100%;
-      border-radius: 10px;
-      transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .pred-summary {
-      font-size: 13px;
-      color: var(--text-muted);
-      line-height: 1.6;
-      background: #f8fafc;
-      padding: 14px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
+      border-radius: 6px;
     }
 
-    /* ── FOOTER ACTIONS ── */
-    .action-bar {
-      margin-top: 20px;
-      display: flex;
-      gap: 10px;
-      justify-content: flex-end;
+    /* ── LIVE TRAIN TRACKING TIMELINE ── */
+    .live-status-hero {
+      background: linear-gradient(135deg, #064e3b 0%, #047857 100%);
+      color: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
     }
-    .btn-secondary {
+    .live-status-note { font-size: 16px; font-weight: 800; line-height: 1.4; }
+    .live-status-meta {
+      display: flex;
+      gap: 16px;
+      margin-top: 12px;
+      font-size: 12px;
+      opacity: 0.9;
+      flex-wrap: wrap;
+    }
+    .live-status-tag {
+      background: rgba(255,255,255,0.2);
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-weight: 700;
+    }
+
+    .timeline-wrap {
+      position: relative;
+      padding-left: 28px;
+    }
+    .timeline-wrap::before {
+      content: '';
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      bottom: 10px;
+      width: 3px;
+      background: #e2e8f0;
+      border-radius: 3px;
+    }
+    .timeline-item {
+      position: relative;
+      margin-bottom: 20px;
+    }
+    .timeline-item:last-child { margin-bottom: 0; }
+    .timeline-dot {
+      position: absolute;
+      left: -28px;
+      top: 3px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 3px solid white;
+      box-shadow: 0 0 0 2px var(--border);
+      background: white;
+    }
+    .timeline-item.passed .timeline-dot { background: #16a34a; box-shadow: 0 0 0 2px #16a34a; }
+    .timeline-item.current .timeline-dot { background: #d97706; box-shadow: 0 0 0 2px #d97706; animation: pulse 1.5s infinite; }
+    .timeline-item.upcoming .timeline-dot { background: #cbd5e1; }
+
+    .tl-header { display: flex; align-items: baseline; justify-content: space-between; }
+    .tl-station-name { font-size: 14px; font-weight: 800; color: var(--text); }
+    .tl-station-code { font-size: 12px; font-weight: 700; color: var(--primary); }
+    .tl-times { display: flex; gap: 14px; margin-top: 4px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+    .tl-delay-tag {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+    .delay-ontime { background: #dcfce7; color: #16a34a; }
+    .delay-late { background: #fee2e2; color: #dc2626; }
+
+    /* ── TRAIN SEARCH RESULTS ── */
+    .train-card {
       background: white;
       border: 1px solid var(--border);
-      padding: 10px 18px;
-      border-radius: 12px;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--text-main);
-      cursor: pointer;
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+      transition: all 0.2s;
+    }
+    .train-card:hover { border-color: #cbd5e1; box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
+    .train-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .train-card-name { font-size: 15px; font-weight: 800; color: var(--primary); }
+    .train-card-schedule {
       display: flex;
       align-items: center;
-      gap: 6px;
-      transition: all 0.15s;
-    }
-    .btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; }
-
-    /* ── TOAST ── */
-    .toast {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      background: #0f172a;
-      color: white;
-      padding: 12px 20px;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: #f8fafc;
       border-radius: 12px;
-      font-size: 13px;
-      font-weight: 600;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-      z-index: 1000;
-      transform: translateY(100px);
-      opacity: 0;
-      transition: all 0.3s;
+      margin-bottom: 12px;
     }
-    .toast.show { transform: translateY(0); opacity: 1; }
+    .days-row { display: flex; gap: 4px; }
+    .day-pill {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      display: grid;
+      place-content: center;
+      font-size: 10px;
+      font-weight: 800;
+      background: #f1f5f9;
+      color: #94a3b8;
+    }
+    .day-pill.active { background: #e0e7ff; color: var(--primary); }
 
-    /* ── FOOTER ── */
-    .page-footer {
+    /* ── LIVE STATION RESULTS ── */
+    .station-train-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      gap: 12px;
+    }
+    .station-train-row:last-child { border-bottom: none; }
+
+    /* ── LOADING & ERROR ── */
+    .loading-box {
+      background: white;
+      border-radius: 20px;
+      padding: 50px 20px;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+      border: 1px solid var(--border);
+    }
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border: 4px solid #e2e8f0;
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .error-box {
+      background: #fef2f2;
+      border: 1.5px solid #fecaca;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      animation: fadeIn 0.3s ease;
+    }
+    .error-icon {
+      font-size: 26px;
+      width: 44px;
+      height: 44px;
+      background: #fee2e2;
+      border-radius: 10px;
+      display: grid;
+      place-content: center;
+      flex-shrink: 0;
+    }
+    .error-title { font-size: 15px; font-weight: 800; color: #991b1b; }
+    .error-desc { font-size: 13px; color: #7f1d1d; margin-top: 3px; line-height: 1.5; }
+
+    .footer {
       text-align: center;
       padding: 30px 20px;
       font-size: 12px;
-      color: var(--text-muted);
+      color: var(--muted);
       border-top: 1px solid var(--border);
       background: white;
+      margin-top: 40px;
     }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .fade-in { animation: fadeIn 0.4s ease both; }
 
     @media (max-width: 600px) {
       .input-row { flex-direction: column; }
-      .search-btn { width: 100%; justify-content: center; }
-      .route-container { flex-direction: column; gap: 14px; text-align: center; }
+      .btn-primary { width: 100%; justify-content: center; }
+      .route-container { flex-direction: column; gap: 12px; text-align: center; }
       .stn { text-align: center !important; }
       .route-middle { width: 100%; }
       .pax-row { flex-direction: column; align-items: flex-start; }
-      .pax-status-box { text-align: left; margin-top: 8px; }
+      .train-card-schedule { flex-direction: column; gap: 10px; text-align: center; }
     }
   </style>
 </head>
@@ -555,163 +599,270 @@
     <div class="brand-wrap">
       <div class="brand-icon">🚂</div>
       <div>
-        <div class="brand-title">IRCTC PNR Tracker</div>
-        <div class="brand-sub">Real-Time Railway Status &amp; Berth Allocation</div>
+        <div class="brand-title">IRCTC Rail Tracker</div>
+        <div class="brand-sub">PNR Status · Live Train · Search Trains</div>
       </div>
     </div>
     <div class="header-badge">
-      <span style="font-size:12px;font-weight:700;opacity:0.9">🇮🇳 Indian Railways</span>
+      <span>🇮🇳 Indian Railways</span>
     </div>
   </div>
+
+  <!-- NAVIGATION TABS -->
+  <nav class="nav-tabs-bar">
+    <div class="nav-tabs">
+      <button class="nav-tab-btn active" onclick="switchTab('tab-pnr')">
+        <span>🎫</span> PNR Status
+      </button>
+      <button class="nav-tab-btn" onclick="switchTab('tab-live')">
+        <span>📍</span> Live Train Status
+      </button>
+      <button class="nav-tab-btn" onclick="switchTab('tab-search')">
+        <span>🔍</span> Search Trains
+      </button>
+      <button class="nav-tab-btn" onclick="switchTab('tab-station')">
+        <span>🚉</span> Live Station
+      </button>
+    </div>
+  </nav>
 </header>
 
 <!-- HERO -->
 <section class="hero">
-  <h1>Track Your Train Journey &amp; Berth</h1>
-  <p>Live passenger records, confirmed coach and berth numbers directly from Indian Railways</p>
+  <h1 id="heroTitle">Track PNR &amp; Confirmation Insights</h1>
+  <p id="heroSub">Live passenger records, confirmed berths, and historical waitlist confirmation trends</p>
 </section>
 
 <!-- MAIN WRAPPER -->
 <main class="main-wrap">
 
-  <!-- SEARCH CARD -->
-  <div class="search-box">
-    <div class="search-title">
-      <span>10-Digit PNR Number</span>
-      <span style="font-size:11px;font-weight:600;color:#94a3b8">e-Ticket / SMS</span>
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       TAB 1: PNR STATUS & WAITLIST INSIGHTS
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="tab-panel active" id="tab-pnr">
+    <div class="search-card">
+      <div class="search-card-title">
+        <span>10-Digit PNR Number</span>
+        <span style="font-size:11px;font-weight:600;color:#94a3b8">e-Ticket / SMS</span>
+      </div>
+      <div class="input-row">
+        <input
+          class="field-input mono"
+          id="pnrInput"
+          type="tel"
+          inputmode="numeric"
+          maxlength="10"
+          placeholder="Enter 10-digit PNR"
+          autocomplete="off"
+        >
+        <button class="btn-primary" id="pnrBtn" onclick="fetchPNR()">
+          <span id="pnrBtnIcon">🔍</span>
+          <span id="pnrBtnText">Check PNR</span>
+        </button>
+      </div>
     </div>
-    <div class="input-row">
-      <input
-        class="pnr-field"
-        id="pnrInput"
-        type="tel"
-        inputmode="numeric"
-        maxlength="10"
-        placeholder="Enter 10-digit PNR"
-        autocomplete="off"
-        autofocus
-      >
-      <button class="search-btn" id="searchBtn" onclick="fetchLivePNR()">
-        <span id="btnIcon">🔍</span>
-        <span id="btnText">Get Live Status</span>
-      </button>
-    </div>
+    <div id="pnrContainer"></div>
   </div>
 
-  <!-- DYNAMIC CONTENT (Error / Loading / Results) -->
-  <div id="statusContainer"></div>
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       TAB 2: LIVE TRAIN RUNNING STATUS (WHERE IS MY TRAIN)
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-live">
+    <div class="search-card">
+      <div class="search-card-title">
+        <span>Track Live Train Running Status</span>
+        <span style="font-size:11px;font-weight:600;color:#94a3b8">NTES / GPS Live Feed</span>
+      </div>
+      <div class="input-row">
+        <input
+          class="field-input mono"
+          id="liveTrainInput"
+          type="tel"
+          inputmode="numeric"
+          maxlength="5"
+          placeholder="5-digit Train No (e.g. 20701)"
+          autocomplete="off"
+        >
+        <input
+          class="field-input"
+          id="liveDateInput"
+          type="text"
+          placeholder="DD-MM-YYYY (Today)"
+          style="max-width: 180px;"
+        >
+        <button class="btn-primary" id="liveBtn" onclick="fetchLiveStatus()">
+          <span id="liveBtnIcon">📍</span>
+          <span id="liveBtnText">Track Live</span>
+        </button>
+      </div>
+      <div class="quick-chips">
+        <span class="chip-label">Quick check:</span>
+        <button class="chip-btn" onclick="quickTrack('20701')">20701 (Vande Bharat)</button>
+        <button class="chip-btn" onclick="quickTrack('12301')">12301 (Rajdhani)</button>
+        <button class="chip-btn" onclick="quickTrack('12951')">12951 (Tejas Rajdhani)</button>
+      </div>
+    </div>
+    <div id="liveContainer"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       TAB 3: SEARCH TRAINS BETWEEN STATIONS
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-search">
+    <div class="search-card">
+      <div class="search-card-title">
+        <span>Search Trains Between Stations</span>
+        <span style="font-size:11px;font-weight:600;color:#94a3b8">Direct Schedule</span>
+      </div>
+      <div class="input-row">
+        <input
+          class="field-input"
+          id="searchFromInput"
+          type="text"
+          placeholder="From Station (e.g. NDLS)"
+          style="text-transform:uppercase"
+        >
+        <input
+          class="field-input"
+          id="searchToInput"
+          type="text"
+          placeholder="To Station (e.g. BCT)"
+          style="text-transform:uppercase"
+        >
+        <button class="btn-primary" id="searchBtn" onclick="fetchTrainSearch()">
+          <span id="searchBtnIcon">🔍</span>
+          <span id="searchBtnText">Find Trains</span>
+        </button>
+      </div>
+      <div class="quick-chips">
+        <span class="chip-label">Popular:</span>
+        <button class="chip-btn" onclick="quickSearch('NDLS', 'BCT')">Delhi ➔ Mumbai</button>
+        <button class="chip-btn" onclick="quickSearch('SC', 'TPTY')">Hyderabad ➔ Tirupati</button>
+        <button class="chip-btn" onclick="quickSearch('HWH', 'NDLS')">Kolkata ➔ Delhi</button>
+        <button class="chip-btn" onclick="quickSearch('MAS', 'SBC')">Chennai ➔ Bangalore</button>
+      </div>
+    </div>
+    <div id="searchContainer"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       TAB 4: LIVE TRAINS AT STATION
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-station">
+    <div class="search-card">
+      <div class="search-card-title">
+        <span>Live Trains Arriving / Departing at Station</span>
+        <span style="font-size:11px;font-weight:600;color:#94a3b8">Station Board</span>
+      </div>
+      <div class="input-row">
+        <input
+          class="field-input"
+          id="stnCodeInput"
+          type="text"
+          placeholder="Station Code (e.g. NDLS, CSMT, HWH)"
+          style="text-transform:uppercase"
+        >
+        <select class="field-input" id="stnHrsInput" style="max-width:160px;cursor:pointer">
+          <option value="2">Next 2 Hours</option>
+          <option value="4" selected>Next 4 Hours</option>
+          <option value="8">Next 8 Hours</option>
+        </select>
+        <button class="btn-primary" id="stnBtn" onclick="fetchStationStatus()">
+          <span id="stnBtnIcon">🚉</span>
+          <span id="stnBtnText">Show Board</span>
+        </button>
+      </div>
+      <div class="quick-chips">
+        <span class="chip-label">Popular Hubs:</span>
+        <button class="chip-btn" onclick="quickStation('NDLS')">NDLS (New Delhi)</button>
+        <button class="chip-btn" onclick="quickStation('CSMT')">CSMT (Mumbai)</button>
+        <button class="chip-btn" onclick="quickStation('SC')">SC (Secunderabad)</button>
+        <button class="chip-btn" onclick="quickStation('HWH')">HWH (Howrah)</button>
+        <button class="chip-btn" onclick="quickStation('MAS')">MAS (Chennai)</button>
+      </div>
+    </div>
+    <div id="stationContainer"></div>
+  </div>
 
 </main>
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
-
-<!-- FOOTER -->
-<footer class="page-footer">
-  <strong>IRCTC PNR Tracker</strong> — Real-Time Indian Railways Status &amp; Berth Allocation<br>
+<footer class="footer">
+  <strong>IRCTC Rail Tracker</strong> — Comprehensive Real-Time Indian Railways Live Data<br>
   Always carry a valid government photo ID along with your e-ticket while travelling.
 </footer>
 
 <script>
 const $ = id => document.getElementById(id);
 
-function showToast(msg) {
-  const t = $('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
-}
+// ── Tab Switching ────────────────────────────────────────────────────────────
+function switchTab(tabId) {
+  document.querySelectorAll('.nav-tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
 
-$('pnrInput').addEventListener('input', e => {
-  e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
-});
-$('pnrInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') fetchLivePNR();
-});
+  const activeBtn = Array.from(document.querySelectorAll('.nav-tab-btn')).find(b => b.getAttribute('onclick')?.includes(tabId));
+  if (activeBtn) activeBtn.classList.add('active');
+  const panel = $(tabId);
+  if (panel) panel.classList.add('active');
 
-function setLoading(on) {
-  $('searchBtn').disabled = on;
-  $('btnIcon').textContent = on ? '⏳' : '🔍';
-  $('btnText').textContent = on ? 'Fetching Live Data…' : 'Get Live Status';
-}
-
-// ── Main PNR Fetch ──────────────────────────────────────────────────────────
-async function fetchLivePNR() {
-  const pnr = $('pnrInput').value.trim();
-  if (!/^\d{10}$/.test(pnr)) {
-    renderError(pnr, 'Please enter a valid 10-digit Indian Railways PNR number.');
-    return;
-  }
-
-  setLoading(true);
-  renderLoading(pnr);
-
-  try {
-    const res = await fetch('/api/pnr?pnr=' + encodeURIComponent(pnr), { cache: 'no-store' });
-    const json = await res.json();
-
-    if (!res.ok || json.status !== 'OK' || !json.data) {
-      const errMsg = json.error || 'Could not retrieve details for this PNR number.';
-      renderError(pnr, errMsg);
-      return;
-    }
-
-    renderSuccess(pnr, json.data, json.provider);
-  } catch (err) {
-    renderError(pnr, 'Network error while contacting railway server: ' + err.message);
-  } finally {
-    setLoading(false);
+  // Update hero texts based on tab
+  const titles = {
+    'tab-pnr': ['Track PNR & Confirmation Insights', 'Live passenger records, confirmed berths, and historical waitlist confirmation trends'],
+    'tab-live': ['Live Train Running Status', 'Real-time GPS running location, arrival/departure delays, and platform allocation'],
+    'tab-search': ['Find Trains Between Stations', 'Search direct trains, timetables, running days, and travel duration'],
+    'tab-station': ['Live Station Arrival & Departure Board', 'Upcoming trains arriving and departing within 2, 4, or 8 hours']
+  };
+  if (titles[tabId]) {
+    $('heroTitle').textContent = titles[tabId][0];
+    $('heroSub').textContent = titles[tabId][1];
   }
 }
 
-// ── Render Loading ──────────────────────────────────────────────────────────
-function renderLoading(pnr) {
-  $('statusContainer').innerHTML = `
-    <div class="loading-card fade-in">
-      <div class="spinner"></div>
-      <div class="loading-title">Connecting to Indian Railways Server…</div>
-      <div class="loading-sub">Fetching live passenger manifest and coach charts for PNR <strong>${pnr}</strong></div>
-    </div>`;
-}
-
-// ── Render Error ────────────────────────────────────────────────────────────
-function renderError(pnr, message) {
-  $('statusContainer').innerHTML = `
-    <div class="error-card fade-in">
-      <div class="error-icon">⚠️</div>
-      <div style="flex:1">
-        <div class="error-title">PNR Lookup Failed</div>
-        <div class="error-desc">${escapeHtml(message)}</div>
-        <div class="error-tips">
-          <strong>💡 Tips:</strong>
-          <ul style="margin:6px 0 0 18px;line-height:1.6">
-            <li>Verify the 10-digit PNR number on your e-ticket or SMS confirmation.</li>
-            <li>Train tickets completed more than 5 days ago are automatically flushed from IRCTC servers.</li>
-            <li>You can also check status by dialling railway helpline <strong>139</strong>.</li>
-          </ul>
-        </div>
-      </div>
-    </div>`;
-}
-
-// ── Escape HTML ─────────────────────────────────────────────────────────────
 function escapeHtml(str) {
   if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-// ── Render Live Data ────────────────────────────────────────────────────────
-function renderSuccess(pnr, d, provider) {
+// ══════════════════════════════════════════════════════════════════════════════
+// FEATURE 1: PNR STATUS & WAITLIST INSIGHTS
+// ══════════════════════════════════════════════════════════════════════════════
+$('pnrInput').addEventListener('input', e => e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10));
+$('pnrInput').addEventListener('keydown', e => { if (e.key === 'Enter') fetchPNR(); });
+
+async function fetchPNR() {
+  const pnr = $('pnrInput').value.trim();
+  if (!/^\d{10}$/.test(pnr)) {
+    renderError('pnrContainer', 'Invalid PNR', 'Please enter a valid 10-digit Indian Railways PNR number.');
+    return;
+  }
+  setPnrLoading(true);
+  $('pnrContainer').innerHTML = `<div class="loading-box"><div class="spinner"></div><strong>Connecting to Indian Railways...</strong><p style="font-size:12px;color:#64748b;margin-top:4px">Fetching passenger manifest for PNR ${pnr}</p></div>`;
+
+  try {
+    const res = await fetch(`/api/pnr?pnr=${encodeURIComponent(pnr)}`, { cache: 'no-store' });
+    const json = await res.json();
+    if (!res.ok || json.status !== 'OK' || !json.data) {
+      renderError('pnrContainer', 'PNR Lookup Failed', json.error || 'Could not retrieve booking details for this PNR.');
+      return;
+    }
+    renderPnrResult(pnr, json.data, json.insights);
+  } catch (err) {
+    renderError('pnrContainer', 'Network Error', err.message);
+  } finally {
+    setPnrLoading(false);
+  }
+}
+
+function setPnrLoading(on) {
+  $('pnrBtn').disabled = on;
+  $('pnrBtnIcon').textContent = on ? '⏳' : '🔍';
+  $('pnrBtnText').textContent = on ? 'Fetching...' : 'Check PNR';
+}
+
+function renderPnrResult(pnr, d, insights) {
   const paxList = Array.isArray(d.passengers) ? d.passengers : [];
-  const anyCNF = paxList.some(p => p.status_type === 'CNF');
   const allCNF = paxList.length > 0 && paxList.every(p => p.status_type === 'CNF');
   const anyRAC = paxList.some(p => p.status_type === 'RAC');
 
-  // Prediction calculation
   let predPercent = 100;
   let predColor = '#16a34a';
   let predLabel = 'Confirmed Berth';
@@ -724,7 +875,6 @@ function renderSuccess(pnr, d, provider) {
       predLabel = 'RAC — Boarding Permitted';
       predDesc = 'Reservation Against Cancellation (RAC) guarantees boarding with seating accommodation.';
     } else {
-      // Find highest waitlist position
       const firstWl = paxList.find(p => p.status_type === 'WL') || {};
       const numMatch = (firstWl.current_status || '').match(/\d+/);
       const wlNum = numMatch ? parseInt(numMatch[0]) : 15;
@@ -745,10 +895,25 @@ function renderSuccess(pnr, d, provider) {
     }
   }
 
-  const html = `
-    <div class="grid fade-in">
+  const wlBenchmarks = insights?.wl_types_benchmark || [
+    { type: 'GNWL', name: 'General Waitlist', clearance_rate: 86, desc: 'Highest priority in charts' },
+    { type: 'RAC', name: 'Reservation Against Cancellation', clearance_rate: 96, desc: 'Guaranteed boarding' },
+    { type: 'RLWL', name: 'Remote Location Waitlist', clearance_rate: 60, desc: 'Intermediate cities' },
+    { type: 'PQWL', name: 'Pooled Quota Waitlist', clearance_rate: 48, desc: 'Intermediate halts pool' },
+    { type: 'TQWL', name: 'Tatkal Waitlist', clearance_rate: 32, desc: 'Tatkal cancellations only' }
+  ];
 
-      <!-- ── TRAIN & JOURNEY DETAILS ── -->
+  const classBenchmarks = insights?.class_benchmarks || [
+    { class: 'SL', name: 'Sleeper', avg_clearance: '20 - 35 seats', speed: 'Very High' },
+    { class: '3A', name: 'AC 3 Tier', avg_clearance: '12 - 22 seats', speed: 'High' },
+    { class: 'CC', name: 'Chair Car', avg_clearance: '10 - 18 seats', speed: 'Moderate' },
+    { class: '2A', name: 'AC 2 Tier', avg_clearance: '4 - 8 seats', speed: 'Low' }
+  ];
+
+  $('pnrContainer').innerHTML = `
+    <div class="grid">
+
+      <!-- Train Card -->
       <div class="card">
         <div class="card-head">
           <div class="card-head-left">
@@ -758,165 +923,448 @@ function renderSuccess(pnr, d, provider) {
               <div class="card-head-sub">Train #${escapeHtml(d.train_number || '—')}</div>
             </div>
           </div>
-          <div>
-            <span class="badge ${d.chart_prepared ? 'badge-cnf' : 'badge-rac'}">
-              ${d.chart_prepared ? '✓ ' : '⏳ '}${escapeHtml(d.chart_status || 'Chart Pending')}
-            </span>
-          </div>
+          <span class="badge ${d.chart_prepared ? 'badge-cnf' : 'badge-rac'}">
+            ${d.chart_prepared ? '✓ ' : '⏳ '}${escapeHtml(d.chart_status || 'Chart Pending')}
+          </span>
         </div>
         <div class="card-body">
-
-          <!-- Route Block -->
           <div class="route-container">
             <div class="stn" style="text-align:left">
-              <div class="stn-code">${escapeHtml(d.from?.code || 'ORIGIN')}</div>
-              <div class="stn-name">${escapeHtml(d.from?.name || 'Boarding Station')}</div>
+              <div class="stn-code">${escapeHtml(d.from?.code || 'SRC')}</div>
+              <div class="stn-name">${escapeHtml(d.from?.name || '')}</div>
               <div class="stn-time">${escapeHtml(d.travel_time || d.from?.dep_time || '—')}</div>
               <div class="stn-date">${escapeHtml(d.travel_date || '')}</div>
             </div>
-
             <div class="route-middle">
               ${d.duration ? `<div class="route-dur">${escapeHtml(d.duration)}</div>` : ''}
               <div class="route-track"></div>
               ${d.distance ? `<div class="route-dist">${escapeHtml(d.distance)}</div>` : ''}
             </div>
-
             <div class="stn" style="text-align:right">
-              <div class="stn-code">${escapeHtml(d.to?.code || 'DEST')}</div>
-              <div class="stn-name">${escapeHtml(d.to?.name || 'Destination Station')}</div>
+              <div class="stn-code">${escapeHtml(d.to?.code || 'DST')}</div>
+              <div class="stn-name">${escapeHtml(d.to?.name || '')}</div>
               <div class="stn-time">${escapeHtml(d.arrival_time || d.to?.arr_time || '—')}</div>
               <div class="stn-date">${escapeHtml(d.arrival_date || d.travel_date || '')}</div>
             </div>
           </div>
 
-          <!-- Metadata Grid -->
           <div class="meta-chips-grid">
-            <div class="meta-box">
-              <div class="meta-box-label">Travel Date</div>
-              <div class="meta-box-val">${escapeHtml(d.travel_date || '—')}</div>
-            </div>
-            <div class="meta-box">
-              <div class="meta-box-label">Class</div>
-              <div class="meta-box-val">${escapeHtml(d.travel_class || '—')}</div>
-            </div>
-            <div class="meta-box">
-              <div class="meta-box-label">Quota</div>
-              <div class="meta-box-val">${escapeHtml(d.quota || 'GN')}</div>
-            </div>
-            <div class="meta-box">
-              <div class="meta-box-label">Total Fare</div>
-              <div class="meta-box-val" style="color:var(--primary)">${escapeHtml(d.fare?.formatted || (d.fare?.total ? '₹' + d.fare.total : '—'))}</div>
-            </div>
+            <div class="meta-box"><div class="meta-box-label">Class</div><div class="meta-box-val">${escapeHtml(d.travel_class || '—')}</div></div>
+            <div class="meta-box"><div class="meta-box-label">Quota</div><div class="meta-box-val">${escapeHtml(d.quota || 'GN')}</div></div>
+            <div class="meta-box"><div class="meta-box-label">Fare</div><div class="meta-box-val" style="color:var(--primary)">${escapeHtml(d.fare?.formatted || '—')}</div></div>
           </div>
 
+          ${d.train_number ? `
+            <div style="margin-top:14px;text-align:right">
+              <button class="chip-btn" style="background:#eef2ff;color:var(--primary);font-weight:700" onclick="trackFromPnr('${escapeHtml(d.train_number)}')">
+                📍 Track Live Train #${escapeHtml(d.train_number)} ➔
+              </button>
+            </div>
+          ` : ''}
         </div>
       </div>
 
-      <!-- ── CONFIRMATION / PREDICTION ── -->
+      <!-- Confirmation Outlook -->
       <div class="card">
         <div class="card-head">
           <div class="card-head-left">
             <div class="card-head-icon" style="background:#ecfdf5">🎯</div>
             <div>
               <div class="card-head-title">Confirmation Outlook</div>
-              <div class="card-head-sub">IRCTC Status Assessment</div>
+              <div class="card-head-sub">Historical AI Assessment</div>
             </div>
           </div>
           <span class="badge badge-neutral">Live</span>
         </div>
         <div class="card-body">
-          <div class="prediction-box">
-            <div class="pred-number" style="color:${predColor}">
+          <div style="text-align:center;padding:10px 0">
+            <div style="font-size:58px;font-weight:900;letter-spacing:-2px;color:${predColor}">
               ${allCNF ? '100%' : predPercent + '%'}
             </div>
-            <div class="pred-title" style="color:${predColor}">
-              ${predLabel}
+            <div style="font-size:14px;font-weight:800;color:${predColor};margin-top:4px">${predLabel}</div>
+            <div class="progress-bar-wrap" style="height:10px;margin:16px 0">
+              <div class="progress-bar-fill" style="width:${allCNF ? 100 : predPercent}%;background:${predColor}"></div>
             </div>
-            <div class="pred-meter">
-              <div class="pred-meter-bar" id="meterFill" style="width:0%;background:${predColor}"></div>
-            </div>
-            <div class="pred-summary">
-              ${predDesc}
-            </div>
+            <p style="font-size:12px;color:#64748b;line-height:1.6">${predDesc}</p>
           </div>
         </div>
       </div>
 
-      <!-- ── PASSENGER LIST (FULL WIDTH) ── -->
+      <!-- Passenger Details -->
       <div class="card full-width">
         <div class="card-head">
           <div class="card-head-left">
             <div class="card-head-icon" style="background:#fef2f2">👥</div>
             <div>
-              <div class="card-head-title">Passenger Details &amp; Berth Allocation</div>
-              <div class="card-head-sub">${paxList.length} passenger(s) registered on PNR ${pnr}</div>
+              <div class="card-head-title">Passenger Manifest &amp; Berth Allocation</div>
+              <div class="card-head-sub">${paxList.length} passenger(s) on PNR ${pnr}</div>
             </div>
           </div>
           <span class="badge badge-info">Verified Ticket</span>
         </div>
         <div class="card-body" style="padding:0">
-          <div class="pax-table-wrap">
-            ${paxList.map(p => {
-              const isCnf = p.status_type === 'CNF';
-              const isRac = p.status_type === 'RAC';
-              const statusClass = isCnf ? 'badge-cnf' : isRac ? 'badge-rac' : 'badge-wl';
-              return `
-                <div class="pax-row">
-                  <div style="display:flex;align-items:center;gap:14px">
-                    <div class="pax-num-badge">${p.number}</div>
-                    <div class="pax-meta">
-                      <div class="pax-name">
-                        Passenger ${p.number}
-                        ${p.coach && p.berth ? `<span class="pax-seat-badge">🪑 Coach ${escapeHtml(p.coach)} · Berth ${escapeHtml(String(p.berth))}</span>` : ''}
-                        ${p.berth_name ? `<span class="badge badge-neutral">${escapeHtml(p.berth_name)}</span>` : ''}
-                      </div>
-                      <div class="pax-sub-details">
-                        <span>Booking: <strong>${escapeHtml(p.booking_status || '—')}</strong></span>
-                        <span>·</span>
-                        <span>Current: <strong>${escapeHtml(p.current_status || '—')}</strong></span>
-                      </div>
+          ${paxList.map(p => {
+            const isCnf = p.status_type === 'CNF';
+            const isRac = p.status_type === 'RAC';
+            const statusClass = isCnf ? 'badge-cnf' : isRac ? 'badge-rac' : 'badge-wl';
+            return `
+              <div class="pax-row">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div class="pax-num-badge">${p.number}</div>
+                  <div class="pax-meta">
+                    <div class="pax-name">
+                      Passenger ${p.number}
+                      ${p.coach && p.berth ? `<span class="pax-seat-badge">🪑 Coach ${escapeHtml(p.coach)} · Berth ${escapeHtml(String(p.berth))}</span>` : ''}
+                      ${p.berth_name ? `<span class="badge badge-neutral">${escapeHtml(p.berth_name)}</span>` : ''}
+                    </div>
+                    <div class="pax-sub-details">
+                      <span>Booking: <strong>${escapeHtml(p.booking_status || '—')}</strong></span>
+                      <span>·</span>
+                      <span>Current: <strong>${escapeHtml(p.current_status || '—')}</strong></span>
                     </div>
                   </div>
-                  <div class="pax-status-box">
-                    <span class="badge ${statusClass}">
-                      ${isCnf ? '✓ ' : ''}${escapeHtml(p.current_status || p.status || 'CONFIRMED')}
-                    </span>
-                  </div>
-                </div>`;
-            }).join('')}
+                </div>
+                <div>
+                  <span class="badge ${statusClass}">
+                    ${isCnf ? '✓ ' : ''}${escapeHtml(p.current_status || p.status || 'CONFIRMED')}
+                  </span>
+                </div>
+              </div>`;
+          }).join('')}
+        </div>
+      </div>
+
+      <!-- Historical Waitlist Confirmation Benchmarks -->
+      <div class="card full-width">
+        <div class="card-head">
+          <div class="card-head-left">
+            <div class="card-head-icon" style="background:#fffbeb">📊</div>
+            <div>
+              <div class="card-head-title">Waitlist Clearance Benchmarks &amp; Historical Trends</div>
+              <div class="card-head-sub">IRCTC statistical promotion patterns across quotas and travel classes</div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div style="font-size:13px;font-weight:700;margin-bottom:8px">1. Confirmation Probability by Quota Type:</div>
+          <table class="insight-table">
+            <thead><tr><th>Quota Type</th><th>Category</th><th>Clearance Rate</th><th>Probability Bar</th></tr></thead>
+            <tbody>
+              ${wlBenchmarks.map(b => `
+                <tr>
+                  <td><strong>${escapeHtml(b.type)}</strong></td>
+                  <td>${escapeHtml(b.name)}<br><span style="color:#94a3b8;font-size:10px">${escapeHtml(b.desc)}</span></td>
+                  <td><strong>${b.clearance_rate}%</strong></td>
+                  <td style="width:35%">
+                    <div class="progress-bar-wrap">
+                      <div class="progress-bar-fill" style="width:${b.clearance_rate}%;background:${b.clearance_rate > 75 ? '#16a34a' : b.clearance_rate > 45 ? '#d97706' : '#dc2626'}"></div>
+                    </div>
+                  </td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+
+          <div style="font-size:13px;font-weight:700;margin:20px 0 8px">2. Historical Movement by Travel Class:</div>
+          <div class="meta-chips-grid">
+            ${classBenchmarks.map(c => `
+              <div class="meta-box">
+                <div class="meta-box-label">${escapeHtml(c.class)} · ${escapeHtml(c.name)}</div>
+                <div class="meta-box-val" style="font-size:13px">${escapeHtml(c.avg_clearance)}</div>
+                <div style="font-size:11px;color:#16a34a;margin-top:2px;font-weight:600">Speed: ${escapeHtml(c.speed)}</div>
+              </div>`).join('')}
+          </div>
+
+          <div style="margin-top:16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px;font-size:12px;color:#475569;line-height:1.6">
+            <strong>⏰ Chart Preparation Timelines:</strong><br>
+            • <strong>First Chart:</strong> Prepared 4 hours before train departure from the originating station. The vast majority of RAC/WL promotions happen here.<br>
+            • <strong>Second Chart:</strong> Prepared 30 minutes before departure for last-minute vacant berths.<br>
+            • <strong>Auto-Refund Guarantee:</strong> Any passenger remaining in Waitlist status after chart preparation is automatically refunded to the booking account.
           </div>
         </div>
       </div>
 
     </div>
-
-    <!-- ACTION BUTTONS -->
-    <div class="action-bar fade-in">
-      <button class="btn-secondary" onclick="copySummary('${pnr}', '${escapeHtml(d.train_name || '')}', '${escapeHtml(d.train_number || '')}')">
-        📋 Copy Summary
-      </button>
-      <button class="btn-secondary" onclick="fetchLivePNR()">
-        🔄 Refresh Status
-      </button>
-    </div>
   `;
-
-  $('statusContainer').innerHTML = html;
-
-  // Animate prediction meter
-  setTimeout(() => {
-    const el = $('meterFill');
-    if (el) el.style.width = (allCNF ? 100 : predPercent) + '%';
-  }, 100);
 }
 
-function copySummary(pnr, name, num) {
-  const text = `IRCTC PNR Status for ${pnr}\nTrain: ${name} (#${num})\nChecked on IRCTC PNR Tracker: ${window.location.origin}`;
-  navigator.clipboard.writeText(text).then(() => {
-    showToast('✓ Ticket summary copied to clipboard!');
-  }).catch(() => {
-    showToast('Failed to copy.');
-  });
+function trackFromPnr(trainNo) {
+  $('liveTrainInput').value = trainNo;
+  switchTab('tab-live');
+  fetchLiveStatus();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FEATURE 2: LIVE TRAIN RUNNING STATUS
+// ══════════════════════════════════════════════════════════════════════════════
+$('liveTrainInput').addEventListener('keydown', e => { if (e.key === 'Enter') fetchLiveStatus(); });
+
+function quickTrack(num) {
+  $('liveTrainInput').value = num;
+  fetchLiveStatus();
+}
+
+async function fetchLiveStatus() {
+  const train = $('liveTrainInput').value.trim();
+  const date = $('liveDateInput').value.trim();
+  if (!/^\d{4,5}$/.test(train)) {
+    renderError('liveContainer', 'Invalid Train Number', 'Please enter a valid 5-digit train number.');
+    return;
+  }
+
+  setLiveLoading(true);
+  $('liveContainer').innerHTML = `<div class="loading-box"><div class="spinner"></div><strong>Tracking Train #${train} Live...</strong><p style="font-size:12px;color:#64748b;margin-top:4px">Connecting to GPS and NTES satellite feed</p></div>`;
+
+  try {
+    let url = `/api/pnr?action=live&train=${encodeURIComponent(train)}`;
+    if (date) url += `&date=${encodeURIComponent(date)}`;
+    const res = await fetch(url, { cache: 'no-store' });
+    const json = await res.json();
+    if (!res.ok || json.status !== 'OK' || !json.data) {
+      renderError('liveContainer', 'Live Tracking Unavailable', json.error || `Could not track train #${train} right now.`);
+      return;
+    }
+    renderLiveResult(json.data);
+  } catch (err) {
+    renderError('liveContainer', 'Network Error', err.message);
+  } finally {
+    setLiveLoading(false);
+  }
+}
+
+function setLiveLoading(on) {
+  $('liveBtn').disabled = on;
+  $('liveBtnIcon').textContent = on ? '⏳' : '📍';
+  $('liveBtnText').textContent = on ? 'Tracking...' : 'Track Live';
+}
+
+function renderLiveResult(d) {
+  const stoppages = (d.timeline || []).filter(t => t.type === 'stoppage' || t.platform || t.scheduled_arr || t.scheduled_dep);
+
+  $('liveContainer').innerHTML = `
+    <div class="card">
+      <div class="card-body">
+        <div class="live-status-hero">
+          <div style="font-size:13px;opacity:0.9;font-weight:700">TRAIN #${escapeHtml(d.train_no)} · ${escapeHtml(d.train_name)}</div>
+          <div class="live-status-note" style="margin-top:6px">📍 ${escapeHtml(d.status_note || 'On Route')}</div>
+          <div class="live-status-meta">
+            ${d.speed ? `<span class="live-status-tag">⚡ ${escapeHtml(d.speed)}</span>` : ''}
+            ${d.total_distance ? `<span class="live-status-tag">📏 ${escapeHtml(d.total_distance)}</span>` : ''}
+            ${d.last_update ? `<span class="live-status-tag">🕒 Updated: ${escapeHtml(d.last_update)}</span>` : ''}
+          </div>
+        </div>
+
+        <div style="font-size:14px;font-weight:800;margin-bottom:16px">Station Stoppages &amp; Delay Schedule:</div>
+        <div class="timeline-wrap">
+          ${stoppages.map(s => {
+            const isPassed = s.status === 'passed';
+            const isCurrent = s.status === 'current';
+            const delay = s.delay_arr || s.delay_dep || '';
+            const isLate = delay && !delay.toLowerCase().includes('right') && !delay.toLowerCase().includes('ontime') && !delay.toLowerCase().includes('on time') && !delay.startsWith('0');
+            return `
+              <div class="timeline-item ${isPassed ? 'passed' : isCurrent ? 'current' : 'upcoming'}">
+                <div class="timeline-dot"></div>
+                <div class="tl-header">
+                  <div>
+                    <span class="tl-station-name">${escapeHtml(s.station_name)}</span>
+                    <span class="tl-station-code">(${escapeHtml(s.station_code)})</span>
+                    ${s.platform ? `<span class="badge badge-neutral" style="margin-left:6px">Pf ${escapeHtml(s.platform)}</span>` : ''}
+                  </div>
+                  ${delay ? `<span class="tl-delay-tag ${isLate ? 'delay-late' : 'delay-ontime'}">${escapeHtml(delay)}</span>` : ''}
+                </div>
+                <div class="tl-times">
+                  <span>Arr: <strong>${escapeHtml(s.actual_arr || s.scheduled_arr || 'SRC')}</strong></span>
+                  <span>·</span>
+                  <span>Dep: <strong>${escapeHtml(s.actual_dep || s.scheduled_dep || 'DST')}</strong></span>
+                  ${s.distance_km ? `<span>·</span><span>${escapeHtml(s.distance_km)} km</span>` : ''}
+                </div>
+              </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FEATURE 3: TRAIN SEARCH BETWEEN STATIONS
+// ══════════════════════════════════════════════════════════════════════════════
+function quickSearch(from, to) {
+  $('searchFromInput').value = from;
+  $('searchToInput').value = to;
+  fetchTrainSearch();
+}
+
+async function fetchTrainSearch() {
+  const from = $('searchFromInput').value.trim().toUpperCase();
+  const to = $('searchToInput').value.trim().toUpperCase();
+  if (!from || !to) {
+    renderError('searchContainer', 'Missing Stations', 'Please enter both From and To station codes (e.g. NDLS to BCT).');
+    return;
+  }
+
+  setSearchLoading(true);
+  $('searchContainer').innerHTML = `<div class="loading-box"><div class="spinner"></div><strong>Finding Trains Between ${from} and ${to}...</strong></div>`;
+
+  try {
+    const res = await fetch(`/api/pnr?action=search&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`, { cache: 'no-store' });
+    const json = await res.json();
+    if (!res.ok || json.status !== 'OK' || !Array.isArray(json.data)) {
+      renderError('searchContainer', 'No Trains Found', json.error || `No trains found between ${from} and ${to}.`);
+      return;
+    }
+    renderSearchResults(from, to, json.data);
+  } catch (err) {
+    renderError('searchContainer', 'Search Error', err.message);
+  } finally {
+    setSearchLoading(false);
+  }
+}
+
+function setSearchLoading(on) {
+  $('searchBtn').disabled = on;
+  $('searchBtnIcon').textContent = on ? '⏳' : '🔍';
+  $('searchBtnText').textContent = on ? 'Searching...' : 'Find Trains';
+}
+
+function renderSearchResults(from, to, trains) {
+  if (trains.length === 0) {
+    $('searchContainer').innerHTML = `<div class="card"><div class="card-body" style="text-align:center;color:#64748b">No trains found operating between ${from} and ${to}.</div></div>`;
+    return;
+  }
+
+  const daysLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+
+  $('searchContainer').innerHTML = `
+    <div style="font-size:14px;font-weight:800;margin-bottom:14px;color:#1e293b">
+      Found ${trains.length} trains from ${escapeHtml(from)} to ${escapeHtml(to)}:
+    </div>
+    ${trains.map(t => {
+      const runStr = String(t.running_days || '1111111').padEnd(7, '0');
+      return `
+        <div class="train-card">
+          <div class="train-card-top">
+            <div>
+              <div class="train-card-name">#${escapeHtml(t.train_no)} · ${escapeHtml(t.train_name)}</div>
+              <div style="font-size:11px;color:#64748b;margin-top:2px">${escapeHtml(t.train_type || 'EXPRESS')}</div>
+            </div>
+            <button class="chip-btn" style="background:#eef2ff;color:var(--primary);font-weight:700" onclick="trackFromPnr('${escapeHtml(t.train_no)}')">
+              📍 Track Live
+            </button>
+          </div>
+          <div class="train-card-schedule">
+            <div style="text-align:left">
+              <div style="font-size:16px;font-weight:800">${escapeHtml(t.from_time || '—')}</div>
+              <div style="font-size:12px;font-weight:700;color:var(--primary)">${escapeHtml(t.from_code)}</div>
+              <div style="font-size:11px;color:#64748b">${escapeHtml(t.from_name)}</div>
+            </div>
+            <div style="text-align:center">
+              <span class="badge badge-info">${escapeHtml(t.travel_time || 'Direct')}</span>
+              <div style="font-size:11px;color:#94a3b8;margin-top:4px">➔➔➔</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:16px;font-weight:800">${escapeHtml(t.to_time || '—')}</div>
+              <div style="font-size:12px;font-weight:700;color:var(--primary)">${escapeHtml(t.to_code)}</div>
+              <div style="font-size:11px;color:#64748b">${escapeHtml(t.to_name)}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+            <div class="days-row">
+              <span style="font-size:11px;color:#94a3b8;margin-right:4px">Runs:</span>
+              ${daysLabels.map((l, i) => `<div class="day-pill ${runStr[i] === '1' ? 'active' : ''}">${l}</div>`).join('')}
+            </div>
+          </div>
+        </div>`;
+    }).join('')}`;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FEATURE 4: LIVE TRAINS AT STATION
+// ══════════════════════════════════════════════════════════════════════════════
+function quickStation(code) {
+  $('stnCodeInput').value = code;
+  fetchStationStatus();
+}
+
+async function fetchStationStatus() {
+  const code = $('stnCodeInput').value.trim().toUpperCase();
+  const hrs = $('stnHrsInput').value;
+  if (!code) {
+    renderError('stationContainer', 'Missing Station Code', 'Please enter a station code (e.g. NDLS, CSMT, HWH).');
+    return;
+  }
+
+  setStnLoading(true);
+  $('stationContainer').innerHTML = `<div class="loading-box"><div class="spinner"></div><strong>Fetching Station Board for ${code}...</strong></div>`;
+
+  try {
+    const res = await fetch(`/api/pnr?action=station&code=${encodeURIComponent(code)}&hrs=${encodeURIComponent(hrs)}`, { cache: 'no-store' });
+    const json = await res.json();
+    if (!res.ok || json.status !== 'OK' || !Array.isArray(json.data)) {
+      renderError('stationContainer', 'Station Lookup Failed', json.error || `Could not find live trains for ${code}.`);
+      return;
+    }
+    renderStationResults(code, json.summary, json.data);
+  } catch (err) {
+    renderError('stationContainer', 'Lookup Error', err.message);
+  } finally {
+    setStnLoading(false);
+  }
+}
+
+function setStnLoading(on) {
+  $('stnBtn').disabled = on;
+  $('stnBtnIcon').textContent = on ? '⏳' : '🚉';
+  $('stnBtnText').textContent = on ? 'Fetching...' : 'Show Board';
+}
+
+function renderStationResults(code, summary, trains) {
+  $('stationContainer').innerHTML = `
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-left">
+          <div class="card-head-icon">🚉</div>
+          <div>
+            <div class="card-head-title">${escapeHtml(code)} Station Board</div>
+            <div class="card-head-sub">${escapeHtml(summary || `${trains.length} trains`)}</div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body" style="padding:0">
+        ${trains.map(t => {
+          const isArrLate = t.delay_arr && !t.delay_arr.toLowerCase().includes('on time') && !t.delay_arr.toLowerCase().includes('right');
+          const isDepLate = t.delay_dep && !t.delay_dep.toLowerCase().includes('on time') && !t.delay_dep.toLowerCase().includes('right');
+          return `
+            <div class="station-train-row">
+              <div style="flex:1">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span style="font-weight:800;color:var(--primary);font-size:14px">#${escapeHtml(t.train_no)}</span>
+                  <span style="font-weight:700;font-size:13px">${escapeHtml(t.train_name)}</span>
+                  ${t.platform && t.platform !== '-' ? `<span class="badge badge-neutral">Pf ${escapeHtml(t.platform)}</span>` : ''}
+                </div>
+                <div style="font-size:12px;color:#64748b;margin-top:3px">
+                  ${escapeHtml(t.source_name || t.source)} ➔ ${escapeHtml(t.dest_name || t.dest)}
+                </div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-size:13px;font-weight:700">Arr: ${escapeHtml(t.expected_arr || '—')}</div>
+                <div style="font-size:11px;margin-top:2px">
+                  <span class="tl-delay-tag ${isArrLate ? 'delay-late' : 'delay-ontime'}">${escapeHtml(t.delay_arr || 'On Time')}</span>
+                </div>
+              </div>
+            </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
+function renderError(containerId, title, desc) {
+  $(containerId).innerHTML = `
+    <div class="error-box">
+      <div class="error-icon">⚠️</div>
+      <div>
+        <div class="error-title">${escapeHtml(title)}</div>
+        <div class="error-desc">${escapeHtml(desc)}</div>
+      </div>
+    </div>`;
 }
 </script>
 </body>

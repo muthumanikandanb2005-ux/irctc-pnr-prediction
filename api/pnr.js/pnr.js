@@ -1,16 +1,35 @@
-import { configure, checkPNRStatus } from 'railkit';
+import {
+  configure,
+  checkPNRStatus,
+  trackTrain,
+  trackTrainV2,
+  searchTrainBetweenStations,
+  getTrainInfo,
+  liveAtStation,
+  stationsByName,
+  trainsByName
+} from 'railkit';
 
 const RAILKIT_API_KEY = process.env.RAILKIT_API_KEY || 'railkit_696fed7d3cfa2c883f874d1207a8d611e55ab68cbc9052f0';
 const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY || '7e8ea2dc25mshd7301594920ea87p1c316ejsn08e58b484aad';
 const RAPIDAPI_HOST = process.env.RAPIDAPI_HOST || 'irctc-api2.p.rapidapi.com';
 
-// Initialize RailKit SDK with API key
 if (RAILKIT_API_KEY) {
   try {
     configure(RAILKIT_API_KEY);
   } catch (err) {
     console.error('RailKit configuration error:', err);
   }
+}
+
+function getTodayIST() {
+  const now = new Date();
+  const istOffset = 5.5 * 60 * 60 * 1000;
+  const istDate = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + istOffset);
+  const day = String(istDate.getDate()).padStart(2, '0');
+  const month = String(istDate.getMonth() + 1).padStart(2, '0');
+  const year = istDate.getFullYear();
+  return `${day}-${month}-${year}`;
 }
 
 export default async function handler(req, res) {
@@ -23,6 +42,206 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed. Use GET.' });
   }
 
+  const action = typeof req.query.action === 'string' ? req.query.action.trim() : '';
+
+  // ── ROUTE 1: Live Train Running Status (Where is My Train) ────────────────
+  if (action === 'live') {
+    const train = typeof req.query.train === 'string' ? req.query.train.trim() : '';
+    let date = typeof req.query.date === 'string' ? req.query.date.trim() : '';
+    if (!/^\d{4,5}$/.test(train)) {
+      return res.status(400).json({ error: 'Please enter a valid 5-digit train number.' });
+    }
+    if (!date) date = getTodayIST();
+
+    try {
+      let liveRes;
+      try {
+        liveRes = await trackTrain(train, date);
+      } catch (_) {
+        liveRes = await trackTrainV2(train, date);
+      }
+
+      if (liveRes && liveRes.success && liveRes.data) {
+        const d = liveRes.data;
+        const timelineRaw = Array.isArray(d.timeline) ? d.timeline : [];
+        const stoppages = timelineRaw.filter(t => t.type === 'stoppage' || t.platform || t.arrival);
+
+        return res.status(200).json({
+          status: 'OK',
+          action: 'live',
+          data: {
+            train_no: d.trainNo || train,
+            train_name: d.trainName || '',
+            date: d.date || date,
+            status_note: d.statusNote || 'Running on track',
+            last_update: d.lastUpdate || '',
+            speed: d.averageSpeedKmph ? `${d.averageSpeedKmph} km/h` : '',
+            total_distance: d.totalDistanceKm ? `${d.totalDistanceKm} km` : '',
+            journey_status: d.progress?.journeyStatus || '',
+            current_station_code: d.currentStationCode || '',
+            total_stoppages: d.totalStoppageStations || stoppages.length,
+            timeline: timelineRaw.map(s => ({
+              type: s.type || 'stoppage',
+              status: s.status || '',
+              station_code: s.stationCode || '',
+              station_name: s.stationName || s.stationCode || '',
+              platform: s.platform || '',
+              distance_km: s.distanceKm || '',
+              scheduled_arr: s.arrival?.scheduled || '',
+              actual_arr: s.arrival?.actual || '',
+              delay_arr: s.arrival?.delay || '',
+              scheduled_dep: s.departure?.scheduled || '',
+              actual_dep: s.departure?.actual || '',
+              delay_dep: s.departure?.delay || ''
+            }))
+          }
+        });
+      }
+      return res.status(404).json({
+        error: liveRes?.error || `Live tracking data not available for train #${train} on ${date}.`
+      });
+    } catch (err) {
+      return res.status(500).json({ error: `Failed to fetch train running status: ${err.message}` });
+    }
+  }
+
+  // ── ROUTE 2: Search Trains Between Stations ───────────────────────────────
+  if (action === 'search') {
+    const from = typeof req.query.from === 'string' ? req.query.from.trim().toUpperCase() : '';
+    const to = typeof req.query.to === 'string' ? req.query.to.trim().toUpperCase() : '';
+    const date = typeof req.query.date === 'string' ? req.query.date.trim() : '';
+
+    if (!from || !to) {
+      return res.status(400).json({ error: 'Please provide both From and To station codes.' });
+    }
+
+    try {
+      const searchRes = await searchTrainBetweenStations(from, to, date || undefined);
+      if (searchRes && searchRes.success) {
+        const trainsRaw = Array.isArray(searchRes.data?.trains)
+          ? searchRes.data.trains
+          : Array.isArray(searchRes.data)
+            ? searchRes.data
+            : [];
+
+        const trains = trainsRaw.map(t => ({
+          train_no: t.train_no || t.trainNo || '',
+          train_name: t.train_name || t.trainName || '',
+          from_code: t.from_stn_code || t.from || from,
+          from_name: t.from_stn_name || t.fromName || from,
+          from_time: t.from_time || t.departureTime || '',
+          to_code: t.to_stn_code || t.to || to,
+          to_name: t.to_stn_name || t.toName || to,
+          to_time: t.to_time || t.arrivalTime || '',
+          travel_time: t.travel_time || t.duration || '',
+          running_days: t.running_days || t.days || '1111111',
+          train_type: t.train_type || t.type || 'EXPRESS',
+          classes: t.classes || ''
+        }));
+
+        return res.status(200).json({
+          status: 'OK',
+          action: 'search',
+          from,
+          to,
+          total: trains.length,
+          data: trains
+        });
+      }
+      return res.status(404).json({
+        error: searchRes?.error || `No trains found operating between ${from} and ${to}.`
+      });
+    } catch (err) {
+      return res.status(500).json({ error: `Search failed: ${err.message}` });
+    }
+  }
+
+  // ── ROUTE 3: Train Info & Timetable ───────────────────────────────────────
+  if (action === 'trainInfo') {
+    const train = typeof req.query.train === 'string' ? req.query.train.trim() : '';
+    if (!/^\d{4,5}$/.test(train)) {
+      return res.status(400).json({ error: 'Please enter a valid train number.' });
+    }
+
+    try {
+      const infoRes = await getTrainInfo(train);
+      if (infoRes && infoRes.success && infoRes.data) {
+        const tInfo = infoRes.data.trainInfo || {};
+        const route = Array.isArray(infoRes.data.route) ? infoRes.data.route : [];
+        return res.status(200).json({
+          status: 'OK',
+          action: 'trainInfo',
+          data: {
+            train_no: tInfo.train_no || train,
+            train_name: tInfo.train_name || '',
+            from_code: tInfo.from_stn_code || '',
+            from_name: tInfo.from_stn_name || '',
+            to_code: tInfo.to_stn_code || '',
+            to_name: tInfo.to_stn_name || '',
+            departure_time: tInfo.from_time || '',
+            arrival_time: tInfo.to_time || '',
+            travel_time: tInfo.travel_time || '',
+            running_days: tInfo.running_days || '',
+            train_type: tInfo.type || '',
+            route: route.map(r => ({
+              stn_code: r.stnCode || '',
+              stn_name: r.stnName || '',
+              arr_time: r.arrTime || '',
+              dep_time: r.depTime || '',
+              halt_mins: r.halt || '',
+              distance: r.distance || '',
+              day: r.day || 1
+            }))
+          }
+        });
+      }
+      return res.status(404).json({ error: infoRes?.error || `Train #${train} not found.` });
+    } catch (err) {
+      return res.status(500).json({ error: `Failed to fetch train timetable: ${err.message}` });
+    }
+  }
+
+  // ── ROUTE 4: Live Trains at Station ───────────────────────────────────────
+  if (action === 'station') {
+    const code = typeof req.query.code === 'string' ? req.query.code.trim().toUpperCase() : '';
+    const hrs = parseInt(req.query.hrs) || 2;
+    if (!code) {
+      return res.status(400).json({ error: 'Please provide a valid station code (e.g. NDLS, CSMT).' });
+    }
+
+    try {
+      const stnRes = await liveAtStation(code, hrs);
+      if (stnRes && stnRes.success && stnRes.data) {
+        const d = stnRes.data;
+        const trains = Array.isArray(d.trains) ? d.trains : [];
+        return res.status(200).json({
+          status: 'OK',
+          action: 'station',
+          station_code: code,
+          summary: d.summary || `${trains.length} trains arriving/departing`,
+          total: d.totalTrains || trains.length,
+          data: trains.map(t => ({
+            train_no: t.trainNo || '',
+            train_name: t.trainName || '',
+            source: t.source || '',
+            source_name: t.sourceName || '',
+            dest: t.dest || '',
+            dest_name: t.destName || '',
+            expected_arr: t.expectedArr || t.schArr || '',
+            expected_dep: t.expectedDep || t.schDep || '',
+            delay_arr: t.delayArr || 'On Time',
+            delay_dep: t.delayDep || 'On Time',
+            platform: t.platform || '-'
+          }))
+        });
+      }
+      return res.status(404).json({ error: stnRes?.error || `No live trains found for station ${code}.` });
+    } catch (err) {
+      return res.status(500).json({ error: `Failed to fetch station status: ${err.message}` });
+    }
+  }
+
+  // ── DEFAULT ROUTE: PNR Status & Confirmation Prediction ───────────────────
   const pnr = typeof req.query.pnr === 'string' ? req.query.pnr.trim() : '';
   if (!/^\d{10}$/.test(pnr)) {
     return res.status(400).json({ error: 'Please enter a valid 10-digit Indian Railways PNR number.' });
@@ -30,7 +249,7 @@ export default async function handler(req, res) {
 
   let lastError = null;
 
-  // ── Engine 1: RailKit SDK (Primary) ───────────────────────────────────────
+  // Primary: RailKit SDK
   if (RAILKIT_API_KEY) {
     try {
       const rkRes = await checkPNRStatus(pnr);
@@ -39,19 +258,20 @@ export default async function handler(req, res) {
           status: 'OK',
           pnr,
           provider: 'railkit',
-          data: normalizeRailKit(rkRes.data, pnr)
+          data: normalizeRailKit(rkRes.data, pnr),
+          insights: generateWaitlistInsights(rkRes.data)
         });
       }
       if (rkRes && (rkRes.error || rkRes.message)) {
         lastError = rkRes.error || rkRes.message;
       }
     } catch (err) {
-      console.warn('RailKit failed, trying fallback:', err.message);
+      console.warn('RailKit failed, fallback to RapidAPI:', err.message);
       lastError = err.message;
     }
   }
 
-  // ── Engine 2: RapidAPI IRCTC (Secondary) ──────────────────────────────────
+  // Secondary: RapidAPI IRCTC
   if (RAPIDAPI_KEY) {
     try {
       const resp = await fetch(`https://${RAPIDAPI_HOST}/pnrStatus?pnr=${pnr}`, {
@@ -72,7 +292,8 @@ export default async function handler(req, res) {
             status: 'OK',
             pnr,
             provider: 'rapidapi-irctc',
-            data: normalizeRapidAPI(rapidJson.data, pnr)
+            data: normalizeRapidAPI(rapidJson.data, pnr),
+            insights: generateWaitlistInsights(rapidJson.data)
           });
         }
         if (rapidJson && (rapidJson.message || rapidJson.error)) {
@@ -85,35 +306,36 @@ export default async function handler(req, res) {
     }
   }
 
-  // ── Engine 3: Backup Service ──────────────────────────────────────────────
-  try {
-    const backupRes = await fetch(`http://pnrapi.dfth.in/pnr/${pnr}`, {
-      headers: { Accept: 'application/json' },
-      signal: AbortSignal.timeout(8000),
-      cache: 'no-store'
-    });
-
-    if (backupRes.ok) {
-      const backupJson = await backupRes.json();
-      if (backupJson && backupJson.status === 'OK' && backupJson.data) {
-        return res.status(200).json({
-          status: 'OK',
-          pnr,
-          provider: 'pnrapi-backup',
-          data: normalizeBackup(backupJson.data, pnr)
-        });
-      }
-    }
-  } catch (err) {
-    console.warn('Backup failed:', err.message);
-  }
-
-  // If no provider succeeded
   const message = lastError || 'PNR details not found. The ticket may have expired or was cancelled.';
   return res.status(404).json({
     status: 'ERROR',
     error: message
   });
+}
+
+// ── Historical Waitlist Insights Generator ──────────────────────────────────
+function generateWaitlistInsights(data) {
+  return {
+    wl_types_benchmark: [
+      { type: 'GNWL', name: 'General Waitlist', clearance_rate: 86, desc: 'Highest priority when charts prepare' },
+      { type: 'RAC', name: 'Reservation Against Cancellation', clearance_rate: 96, desc: 'Guaranteed boarding & seat allotment' },
+      { type: 'RLWL', name: 'Remote Location Waitlist', clearance_rate: 60, desc: 'Allotted for intermediate cities' },
+      { type: 'PQWL', name: 'Pooled Quota Waitlist', clearance_rate: 48, desc: 'Pooled across intermediate halts' },
+      { type: 'TQWL', name: 'Tatkal Waitlist', clearance_rate: 32, desc: 'Clears only on Tatkal cancellations' }
+    ],
+    class_benchmarks: [
+      { class: 'SL', name: 'Sleeper', avg_clearance: '20 - 35 seats', speed: 'Very High' },
+      { class: '3A', name: 'AC 3 Tier', avg_clearance: '12 - 22 seats', speed: 'High' },
+      { class: 'CC', name: 'Chair Car', avg_clearance: '10 - 18 seats', speed: 'Moderate' },
+      { class: '2A', name: 'AC 2 Tier', avg_clearance: '4 - 8 seats', speed: 'Low' },
+      { class: '1A', name: 'First AC', avg_clearance: '1 - 3 seats', speed: 'Very Low' }
+    ],
+    charting_rules: [
+      { timing: '4 Hours Before Departure', event: 'First Chart Prepared — majority of RAC/WL promotions happen' },
+      { timing: '30 Mins Before Departure', event: 'Second/Final Chart Prepared — last-minute cancellation allocations' },
+      { timing: 'Post Chart Preparation', event: 'Fully waitlisted e-tickets auto-cancel and refund to original payment method' }
+    ]
+  };
 }
 
 // ── Berth code translator ───────────────────────────────────────────────────
@@ -158,7 +380,6 @@ function parseDateTimeStr(str) {
   return { date: str, time: '', raw: str };
 }
 
-// ── Calculate duration between dates ────────────────────────────────────────
 function calcDuration(startStr, endStr) {
   if (!startStr || !endStr) return '';
   try {
@@ -241,8 +462,6 @@ function normalizeRailKit(d, pnr) {
       total: booking.fare || booking.ticketFare || '',
       formatted: booking.fare ? `₹${Number(booking.fare).toLocaleString('en-IN')}` : ''
     },
-    ratings: null,
-    has_pantry: false,
     passengers
   };
 }
@@ -301,63 +520,6 @@ function normalizeRapidAPI(d, pnr) {
       total: d.fare?.bookingFare || d.fare?.ticketFare || '',
       formatted: d.fare?.bookingFare ? `₹${Number(d.fare.bookingFare).toLocaleString('en-IN')}` : ''
     },
-    ratings: d.ratings || null,
-    has_pantry: Boolean(d.hasPantry),
-    passengers
-  };
-}
-
-// ── Normalize pnrapi backup ─────────────────────────────────────────────────
-function normalizeBackup(d, pnr) {
-  const passengersRaw = Array.isArray(d.passenger) ? d.passenger : [];
-
-  const passengers = passengersRaw.map((p, i) => {
-    const stStr = p.status || p.booking_status || '';
-    const st = classifyStatus(stStr);
-    return {
-      number: i + 1,
-      booking_status: p.booking_status || '',
-      current_status: p.status || '',
-      status: p.status || '',
-      status_type: st.type,
-      coach: p.coach || null,
-      berth: p.berth || null,
-      berth_code: '',
-      berth_name: ''
-    };
-  });
-
-  return {
-    pnr,
-    train_number: d.train_number || '',
-    train_name: d.train_name || '',
-    travel_date: d.travel_date || '',
-    travel_time: d.from?.dep_time || '',
-    arrival_date: '',
-    arrival_time: d.to?.arr_time || '',
-    travel_class: d.travel_class || '',
-    quota: d.quota || 'GN',
-    distance: '',
-    duration: d.duration || '',
-    from: {
-      code: d.from?.code || '',
-      name: d.from?.name || '',
-      dep_time: d.from?.dep_time || ''
-    },
-    to: {
-      code: d.to?.code || '',
-      name: d.to?.name || '',
-      arr_time: d.to?.arr_time || ''
-    },
-    boarding: {
-      code: d.boarding_point || d.from?.code || '',
-      name: d.from?.name || ''
-    },
-    chart_status: d.chart_prepared ? 'Chart Prepared' : 'Chart Not Prepared',
-    chart_prepared: Boolean(d.chart_prepared),
-    fare: { total: '', formatted: '' },
-    ratings: null,
-    has_pantry: false,
     passengers
   };
 }
