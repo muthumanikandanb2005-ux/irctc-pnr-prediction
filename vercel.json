@@ -3,9 +3,12 @@
   "name": "irctc-pnr-tracker",
   "builds": [
     { "src": "index.html", "use": "@vercel/static" },
+    { "src": "privacy.html", "use": "@vercel/static" },
     { "src": "api/pnr.js/pnr.js", "use": "@vercel/node" }
   ],
   "routes": [
+    { "src": "/privacy", "dest": "/privacy.html" },
+    { "src": "/privacy.html", "dest": "/privacy.html" },
     { "src": "/api/pnr", "dest": "/api/pnr.js/pnr.js" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
