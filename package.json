@@ -8,5 +8,6 @@
     "deploy": "vercel --prod"
   },
   "keywords": ["irctc", "pnr", "train", "india", "railway"],
-  "license": "MIT"
+  "license": "MIT",
+  "type": "module"
 }
