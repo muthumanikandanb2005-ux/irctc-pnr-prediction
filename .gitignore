@@ -1,1 +1,15 @@
+# Environment secrets — NEVER commit these
+.env
+.env.local
+.env.production
+.env*.local
+
+# Vercel
 .vercel
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/

@@ -1,5 +1,5 @@
-const RAPIDAPI_KEY  = '7e8ea2dc25mshd7301594920ea87p1c316ejsn08e58b484aad';
-const RAPIDAPI_HOST = 'irctc-api2.p.rapidapi.com';
+const RAPIDAPI_KEY  = process.env.RAPIDAPI_KEY  || '';
+const RAPIDAPI_HOST = process.env.RAPIDAPI_HOST || 'irctc-api2.p.rapidapi.com';
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store, max-age=0');
