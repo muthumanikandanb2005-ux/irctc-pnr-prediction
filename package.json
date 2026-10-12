@@ -1,0 +1,12 @@
+{
+  "name": "irctc-pnr-tracker",
+  "version": "2.0.0",
+  "description": "IRCTC PNR Status Tracker with live status and confirmation prediction",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "keywords": ["irctc", "pnr", "train", "india", "railway"],
+  "license": "MIT"
+}

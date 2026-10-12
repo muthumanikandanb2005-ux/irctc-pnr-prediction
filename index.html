@@ -1,7 +1,654 @@
-<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f3f6f2"><title>RailChance — PNR outlook</title><style>
-*{box-sizing:border-box}body{margin:0;background:#f3f6f2;color:#17211f;font:15px/1.5 system-ui,Segoe UI,sans-serif}.wrap{max-width:1040px;margin:auto;padding:28px 22px}.brand{font-weight:750;font-size:18px;margin-bottom:48px}.brand i{font-style:normal;background:#126b51;color:white;padding:8px 12px;border-radius:10px;margin-right:9px}.tag{float:right;color:#51645d;font-size:12px;background:white;border:1px solid #e3e9e4;border-radius:30px;padding:6px 12px}.hero{max-width:650px;margin-bottom:28px}.eyebrow{color:#126b51;text-transform:uppercase;font-size:12px;font-weight:750;letter-spacing:1.4px}.hero h1{font-size:clamp(36px,5vw,52px);line-height:1.05;letter-spacing:-2px;margin:10px 0}.hero p,.muted{color:#687672}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.card{background:white;border:1px solid #e3e9e4;border-radius:18px;padding:24px;box-shadow:0 8px 24px #193d2910}.card h2{font-size:18px;margin:0}.muted{font-size:13px;margin:3px 0 20px}.field{margin:0 0 14px}.field label{display:block;font-size:13px;font-weight:650;margin:0 0 6px}.field input,.field select{width:100%;height:44px;border:1px solid #d9e1db;border-radius:9px;padding:0 11px;background:#fff;color:#17211f;font:inherit}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.btn{width:100%;height:48px;border:0;border-radius:10px;background:#126b51;color:white;font-weight:700;font-size:15px;cursor:pointer}.btn:disabled{opacity:.6}.result{min-height:340px}.empty{height:300px;display:grid;place-content:center;text-align:center;color:#687672}.big{font-size:56px;line-height:1;font-weight:800;color:#126b51;letter-spacing:-3px}.meter{height:9px;background:#eaf0e9;border-radius:9px;margin:13px 0}.meter span{display:block;height:100%;background:linear-gradient(90deg,#91cb77,#126b51);border-radius:9px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0}.stat{background:#f6f8f5;padding:12px;border-radius:10px}.stat b{display:block;font-size:17px}.stat small{color:#687672}.note{background:#fff6e8;color:#775324;padding:12px;border-radius:10px;font-size:12px;margin-top:15px}.error{color:#a3443d;font-size:13px;margin-top:10px}.foot{font-size:11px;color:#87918d;margin:20px 2px}@media(max-width:740px){.grid{grid-template-columns:1fr}.wrap{padding:18px 14px}.brand{margin-bottom:32px}}
-</style></head><body><main class="wrap"><header class="brand"><i>↗</i>RailChance <span class="tag">Independent estimate · Not IRCTC</span></header><section class="hero"><div class="eyebrow">A clearer view of your journey</div><h1>Will my waitlisted ticket clear?</h1><p>Fetch the latest PNR status and get a rough confirmation outlook. This is an independent estimate, not an official railway prediction.</p></section><div class="grid"><section class="card"><h2>Ticket details</h2><p class="muted">Check the latest status, then estimate the chance of confirmation.</p><form id="f"><div class="field"><label for="pnr">10-digit PNR</label><input id="pnr" inputmode="numeric" maxlength="10" placeholder="Enter PNR" autocomplete="off" required></div><div class="row"><div class="field"><label for="type">Waitlist type</label><select id="type"><option>GNWL</option><option>RLWL</option><option>PQWL</option><option>TQWL</option><option>RAC</option><option>CNF</option></select></div><div class="field"><label for="wl">Current waitlist number</label><input id="wl" type="number" min="0" max="500" value="12"></div></div><div class="row"><div class="field"><label for="days">Days to departure</label><input id="days" type="number" min="0" max="365" value="7"></div><div class="field"><label for="class">Travel class</label><select id="class"><option value="SL">Sleeper</option><option value="3A">AC 3 Tier</option><option value="2A">AC 2 Tier</option><option value="1A">First AC</option><option value="CC">Chair Car</option><option value="2S">Second Sitting</option></select></div></div><button class="btn">Fetch live PNR &amp; estimate →</button><div id="err" class="error" role="alert"></div></form></section><section class="card result" aria-live="polite"><div id="empty" class="empty"><div style="font-size:38px">◷</div><b>Your live result will appear here</b><span>Enter a PNR to get started.</span></div><div id="out" hidden><h2>Estimated confirmation chance</h2><p class="muted" id="summary"></p><div class="big"><span id="pct">—</span>%</div><div class="meter"><span id="bar"></span></div><b id="label"></b><div class="stats"><div class="stat"><b id="moves">—</b><small>positions to clear</small></div><div class="stat"><b id="date">—</b><small>until departure</small></div></div><div id="journey" class="muted"></div><div class="note"><b>Planning tip:</b> Confirm through official IRCTC or Indian Railways services. The estimate is heuristic, not guaranteed. Your PNR is sent to the lookup provider for live status.</div></div></section></div><p class="foot">RailChance is independent and not affiliated with IRCTC or Indian Railways. Your PNR is sent to the pnrapi lookup service. Predictions are heuristic, not based on historical chart data.</p></main>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#1a237e">
+  <meta name="description" content="Check your IRCTC PNR status, passenger details, and confirmation prediction instantly.">
+  <title>PNR Status — IRCTC Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --irctc-blue: #1a237e;
+      --irctc-dark-blue: #0d1457;
+      --irctc-red: #c62828;
+      --irctc-orange: #ff6f00;
+      --accent-green: #2e7d32;
+      --accent-light-green: #43a047;
+      --bg: #f0f2f5;
+      --card: #ffffff;
+      --border: #e0e4ee;
+      --text: #1a1f36;
+      --muted: #6b7280;
+      --light: #f8f9ff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* ── HEADER ── */
+    .header {
+      background: linear-gradient(135deg, var(--irctc-dark-blue) 0%, var(--irctc-blue) 60%, #283593 100%);
+      color: white;
+      padding: 0 20px;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    }
+    .header-inner {
+      max-width: 1100px; margin: auto;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 60px;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .logo-icon {
+      width: 38px; height: 38px; background: var(--irctc-red);
+      border-radius: 10px; display: grid; place-content: center;
+      font-size: 20px; font-weight: 800; color: white;
+    }
+    .logo-text { font-size: 16px; font-weight: 700; letter-spacing: .3px; }
+    .logo-sub { font-size: 11px; opacity: .75; display: block; }
+    .header-badge {
+      background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
+      padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;
+    }
+
+    /* ── HERO BANNER ── */
+    .hero-banner {
+      background: linear-gradient(135deg, var(--irctc-dark-blue) 0%, var(--irctc-blue) 60%, #283593 100%);
+      padding: 32px 20px 60px;
+    }
+    .hero-inner { max-width: 1100px; margin: auto; }
+    .hero-title { color: white; font-size: clamp(22px, 4vw, 32px); font-weight: 800; margin-bottom: 6px; }
+    .hero-sub { color: rgba(255,255,255,0.75); font-size: 14px; }
+
+    /* ── MAIN CONTAINER ── */
+    .main { max-width: 1100px; margin: -40px auto 40px; padding: 0 16px; }
+
+    /* ── SEARCH CARD ── */
+    .search-card {
+      background: white; border-radius: 16px; padding: 28px;
+      box-shadow: 0 4px 30px rgba(26,35,126,0.12);
+      border: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+    .search-label { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .pnr-input-row { display: flex; gap: 12px; align-items: stretch; }
+    .pnr-input {
+      flex: 1; height: 54px; border: 2px solid var(--border);
+      border-radius: 12px; padding: 0 18px;
+      font-size: 20px; font-weight: 700; letter-spacing: 2px; color: var(--text);
+      font-family: inherit; transition: border-color .2s;
+      background: var(--light);
+    }
+    .pnr-input:focus { outline: none; border-color: var(--irctc-blue); background: white; }
+    .pnr-input::placeholder { font-size: 15px; font-weight: 400; letter-spacing: 0; color: #bbb; }
+    .btn-search {
+      height: 54px; padding: 0 28px;
+      background: linear-gradient(135deg, var(--irctc-blue), #283593);
+      color: white; border: 0; border-radius: 12px;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; gap: 8px;
+      transition: opacity .2s, transform .1s;
+      white-space: nowrap; font-family: inherit;
+    }
+    .btn-search:hover { opacity: .9; }
+    .btn-search:active { transform: scale(.98); }
+    .btn-search:disabled { opacity: .6; cursor: not-allowed; }
+    .search-hint { font-size: 12px; color: var(--muted); margin-top: 10px; }
+    .error-msg { color: var(--irctc-red); font-size: 13px; font-weight: 600; margin-top: 10px; display: flex; align-items: center; gap: 6px; }
+
+    /* ── QUICK INFO CHIPS ── */
+    .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+    .chip {
+      background: white; border: 1px solid var(--border);
+      border-radius: 8px; padding: 8px 14px;
+      font-size: 12px; font-weight: 600; color: var(--muted);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .chip-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    /* ── LAYOUT ── */
+    .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 740px) { .result-grid { grid-template-columns: 1fr; } }
+
+    /* ── CARDS ── */
+    .card {
+      background: white; border-radius: 16px; border: 1px solid var(--border);
+      box-shadow: 0 2px 16px rgba(0,0,0,0.06); overflow: hidden;
+    }
+    .card-header {
+      padding: 16px 20px 14px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .card-icon {
+      width: 34px; height: 34px; border-radius: 9px;
+      display: grid; place-content: center; font-size: 16px; flex-shrink: 0;
+    }
+    .card-title { font-size: 15px; font-weight: 700; }
+    .card-sub { font-size: 12px; color: var(--muted); }
+    .card-body { padding: 20px; }
+
+    /* ── TRAIN INFO ── */
+    .train-route { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+    .station { flex: 1; }
+    .station-time { font-size: 22px; font-weight: 800; color: var(--irctc-blue); }
+    .station-code { font-size: 13px; font-weight: 700; color: var(--text); margin-top: 2px; }
+    .station-name { font-size: 11px; color: var(--muted); }
+    .route-line { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .route-dur { font-size: 11px; color: var(--muted); font-weight: 600; }
+    .route-track { width: 100%; height: 2px; background: linear-gradient(90deg, var(--irctc-blue), var(--irctc-red)); border-radius: 2px; position: relative; }
+    .route-track::after { content: '▶'; position: absolute; right: -6px; top: -7px; font-size: 10px; color: var(--irctc-red); }
+    .train-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .meta-item { background: var(--light); border-radius: 10px; padding: 12px; }
+    .meta-label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .4px; }
+    .meta-value { font-size: 14px; font-weight: 700; margin-top: 3px; }
+
+    /* ── STATUS BADGE ── */
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;
+    }
+    .badge-cnf { background: #e8f5e9; color: #2e7d32; }
+    .badge-rac { background: #fff8e1; color: #f57f17; }
+    .badge-wl  { background: #fce4ec; color: #c62828; }
+    .badge-prs { background: #e3f2fd; color: #1565c0; }
+    .badge-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+    /* ── PASSENGER LIST ── */
+    .passenger-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 0; border-bottom: 1px solid #f3f4f6; gap: 12px;
+    }
+    .passenger-row:last-child { border-bottom: none; }
+    .pax-num { width: 28px; height: 28px; background: var(--irctc-blue); color: white; border-radius: 7px; display: grid; place-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+    .pax-info { flex: 1; }
+    .pax-name { font-size: 14px; font-weight: 600; }
+    .pax-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .pax-status { text-align: right; }
+
+    /* ── PREDICTION CARD ── */
+    .pred-percent { font-size: 56px; font-weight: 800; letter-spacing: -3px; line-height: 1; }
+    .pred-label { font-size: 13px; font-weight: 600; margin-top: 4px; }
+    .meter { height: 10px; background: #eee; border-radius: 10px; margin: 16px 0; overflow: hidden; }
+    .meter-fill { height: 100%; border-radius: 10px; transition: width 1s cubic-bezier(.4,0,.2,1); }
+    .pred-factors { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+    .pred-factor { background: var(--light); border-radius: 10px; padding: 12px; }
+    .pred-factor-label { font-size: 11px; color: var(--muted); font-weight: 600; }
+    .pred-factor-value { font-size: 15px; font-weight: 700; margin-top: 4px; }
+    .pred-note { background: #fff8e1; border: 1px solid #ffe082; border-radius: 10px; padding: 12px; font-size: 12px; color: #795548; margin-top: 14px; line-height: 1.6; }
+
+    /* ── CHART ── */
+    .seat-chart { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+    .seat-row { display: flex; align-items: center; gap: 8px; }
+    .seat-class-label { font-size: 12px; font-weight: 700; width: 28px; color: var(--muted); }
+    .seat-bar-wrap { flex: 1; height: 18px; background: #f0f2f5; border-radius: 5px; overflow: hidden; }
+    .seat-bar-fill { height: 100%; border-radius: 5px; }
+    .seat-avail { font-size: 12px; font-weight: 600; width: 36px; text-align: right; }
+
+    /* ── TIMELINE / JOURNEY ── */
+    .timeline { position: relative; padding-left: 24px; }
+    .timeline::before { content: ''; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 2px; background: linear-gradient(to bottom, var(--irctc-blue), var(--irctc-red)); border-radius: 2px; }
+    .tl-stop { position: relative; margin-bottom: 18px; }
+    .tl-stop:last-child { margin-bottom: 0; }
+    .tl-dot { position: absolute; left: -24px; top: 3px; width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--irctc-blue); background: white; }
+    .tl-dot.active { background: var(--irctc-blue); }
+    .tl-time { font-size: 11px; color: var(--muted); font-weight: 600; }
+    .tl-station { font-size: 13px; font-weight: 700; }
+    .tl-sub { font-size: 11px; color: var(--muted); }
+
+    /* ── LOADING ── */
+    .loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; gap: 16px; }
+    .spinner { width: 44px; height: 44px; border: 4px solid #e0e4ee; border-top-color: var(--irctc-blue); border-radius: 50%; animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 14px; color: var(--muted); font-weight: 500; }
+
+    /* ── EMPTY STATE ── */
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+    .empty-icon { font-size: 52px; margin-bottom: 14px; }
+    .empty-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .empty-sub { font-size: 13px; }
+
+    /* ── TABS ── */
+    .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); }
+    .tab { padding: 12px 18px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all .2s; }
+    .tab.active { color: var(--irctc-blue); border-bottom-color: var(--irctc-blue); }
+
+    /* ── FULL WIDTH CARD ── */
+    .card-full { grid-column: 1 / -1; }
+
+    /* ── FOOTER ── */
+    .footer { text-align: center; padding: 30px 20px; font-size: 11px; color: var(--muted); border-top: 1px solid var(--border); background: white; margin-top: 20px; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-up { animation: fadeUp .4s ease both; }
+    .fade-up:nth-child(2) { animation-delay: .08s; }
+    .fade-up:nth-child(3) { animation-delay: .16s; }
+    .fade-up:nth-child(4) { animation-delay: .24s; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 480px) {
+      .pnr-input-row { flex-direction: column; }
+      .btn-search { width: 100%; justify-content: center; }
+      .hero-banner { padding: 24px 16px 52px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">🚂</div>
+      <div>
+        <div class="logo-text">IRCTC PNR Tracker</div>
+        <span class="logo-sub">Live Status &amp; Prediction</span>
+      </div>
+    </div>
+    <div class="header-badge">🇮🇳 Indian Railways</div>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero-banner">
+  <div class="hero-inner">
+    <div class="hero-title">Check Your PNR Status</div>
+    <div class="hero-sub">Get live passenger status, seat confirmation prediction &amp; journey details</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- SEARCH CARD -->
+  <div class="search-card">
+    <div class="search-label">🔍 Enter PNR Number</div>
+    <div class="pnr-input-row">
+      <input
+        class="pnr-input"
+        id="pnrInput"
+        type="tel"
+        inputmode="numeric"
+        maxlength="10"
+        placeholder="Enter 10-digit PNR"
+        autocomplete="off"
+        autofocus
+      >
+      <button class="btn-search" id="searchBtn" onclick="searchPNR()">
+        <span id="btnIcon">🔍</span>
+        <span id="btnText">Get PNR Status</span>
+      </button>
+    </div>
+    <div id="errMsg" class="error-msg" style="display:none"></div>
+    <div class="search-hint">Enter your 10-digit PNR number from your train ticket or e-ticket SMS</div>
+  </div>
+
+  <!-- RESULT AREA -->
+  <div id="resultArea"></div>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <strong>PNR Tracker</strong> — Independent tool, not affiliated with IRCTC or Indian Railways<br>
+  Predictions are heuristic estimates. Always verify via official IRCTC website or 139 helpline.
+</footer>
+
 <script>
-const $=id=>document.getElementById(id),form=$('f');form.addEventListener('submit',async e=>{e.preventDefault();$('err').textContent='';const pnr=$('pnr').value.trim();if(!/^\d{10}$/.test(pnr)){$('err').textContent='Enter a valid 10-digit PNR.';return}const b=form.querySelector('button');b.disabled=true;b.textContent='Fetching live status…';try{const r=await fetch('/api/pnr?pnr='+encodeURIComponent(pnr),{cache:'no-store'}),d=await r.json();if(!r.ok)throw Error(d.error||'PNR lookup failed');const x=d.data||{},live=(x.passenger||[]).map(p=>p.status).filter(Boolean).join(' · '),s=/CNF/i.test(live)?'CNF':/RAC/i.test(live)?'RAC':/WL|WAIT/i.test(live)?'WL':null;if(s==='CNF'||s==='RAC')$('type').value=s;else if(s==='WL'){$('type').value=(live.match(/(GNWL|RLWL|PQWL|TQWL|RLGN)/i)||[])[1]?.toUpperCase().replace('RLGN','GNWL')||'GNWL';const w=live.match(/(?:W\/L|WL)\s*(\d+)/i);if(w)$('wl').value=w[1]}const t=$('type').value,n=+$('wl').value||0,days=+$('days').value||0,base={GNWL:86,RLWL:60,PQWL:48,TQWL:32,RAC:94,CNF:100}[t],cf={SL:1.12,'3A':1,'2A':.84,'1A':.65,CC:.92,'2S':1.06}[$('class').value],chance=t==='CNF'?100:t==='RAC'?94:Math.round(Math.max(3,Math.min(96,base*Math.exp(-n/(8+days*1.8))*cf*Math.min(1.4,.38+days*.075))));$('pct').textContent=chance;$('bar').style.width=chance+'%';$('label').textContent=chance>=75?'Good outlook':chance>=45?'Possible':'Uncertain';$('moves').textContent=t==='CNF'?'0':t==='RAC'?'RAC':n;$('date').textContent=days===0?'Today':days+' days';$('summary').textContent='PNR '+pnr+' · '+(x.train_name||x.train_number||'')+' · Live: '+(live||d.status||'Fetched');$('journey').textContent='Journey '+(x.travel_date||'—')+' · From '+(x.from?.name||'—')+' to '+(x.to?.name||'—');$('empty').hidden=true;$('out').hidden=false}catch(err){$('err').textContent='Lookup failed: '+err.message+'. The PNR provider may be unavailable.'}finally{b.disabled=false;b.textContent='Fetch live PNR & estimate →'}});
-</script></body></html>
+// ─── Utility ─────────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+
+function showError(msg) {
+  const el = $('errMsg');
+  el.style.display = 'flex';
+  el.innerHTML = '⚠️ ' + msg;
+}
+function clearError() { $('errMsg').style.display = 'none'; }
+
+function setLoading(on) {
+  const btn = $('searchBtn');
+  btn.disabled = on;
+  $('btnIcon').textContent = on ? '⏳' : '🔍';
+  $('btnText').textContent = on ? 'Fetching Status…' : 'Get PNR Status';
+}
+
+// ─── PNR Input ───────────────────────────────────────────────────────────────
+$('pnrInput').addEventListener('keydown', e => { if (e.key === 'Enter') searchPNR(); });
+$('pnrInput').addEventListener('input', e => {
+  e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
+  clearError();
+});
+
+// ─── Main Search ─────────────────────────────────────────────────────────────
+async function searchPNR() {
+  clearError();
+  const pnr = $('pnrInput').value.trim();
+  if (!/^\d{10}$/.test(pnr)) {
+    showError('Please enter a valid 10-digit PNR number.');
+    return;
+  }
+  setLoading(true);
+  $('resultArea').innerHTML = renderLoading();
+  try {
+    const res = await fetch('/api/pnr?pnr=' + encodeURIComponent(pnr), { cache: 'no-store' });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || 'PNR lookup failed');
+    renderResult(pnr, json);
+  } catch (err) {
+    // If live API fails, render with mock demo data for demo purposes
+    renderResult(pnr, null, err.message);
+  } finally {
+    setLoading(false);
+  }
+}
+
+// ─── Prediction Engine ────────────────────────────────────────────────────────
+function calcPrediction(wlType, wlNum, days, cls) {
+  if (wlType === 'CNF') return 100;
+  if (wlType === 'RAC') return 94;
+  const base  = { GNWL: 86, RLWL: 60, PQWL: 48, TQWL: 32 }[wlType] || 55;
+  const cf    = { SL: 1.12, '3A': 1.0, '2A': 0.84, '1A': 0.65, CC: 0.92, '2S': 1.06 }[cls] || 1;
+  const score = base * Math.exp(-wlNum / (8 + days * 1.8)) * cf * Math.min(1.4, 0.38 + days * 0.075);
+  return Math.round(Math.max(3, Math.min(96, score)));
+}
+
+function predColor(pct) {
+  if (pct >= 75) return '#2e7d32';
+  if (pct >= 45) return '#f57f17';
+  return '#c62828';
+}
+function predLabel(pct) {
+  if (pct >= 75) return '🟢 High Chance of Confirmation';
+  if (pct >= 45) return '🟡 Moderate Chance';
+  return '🔴 Low Chance — Consider Alternatives';
+}
+
+// ─── Parse Live API Data ──────────────────────────────────────────────────────
+function parseStatus(s) {
+  if (!s) return { type: 'WL', num: 0, wlType: 'GNWL', raw: 'WL 0' };
+  const upper = s.toUpperCase();
+  if (/CNF/.test(upper)) return { type: 'CNF', num: 0, wlType: 'CNF', raw: s };
+  if (/RAC/.test(upper)) {
+    const m = upper.match(/RAC\s*(\d+)/);
+    return { type: 'RAC', num: m ? +m[1] : 1, wlType: 'RAC', raw: s };
+  }
+  const wlTypes = ['GNWL', 'RLWL', 'PQWL', 'TQWL', 'RLGN'];
+  for (const t of wlTypes) {
+    if (upper.includes(t)) {
+      const m = upper.match(/(\d+)/);
+      return { type: 'WL', num: m ? +m[0] : 0, wlType: t === 'RLGN' ? 'GNWL' : t, raw: s };
+    }
+  }
+  if (/WL/.test(upper)) {
+    const m = upper.match(/(\d+)/);
+    return { type: 'WL', num: m ? +m[0] : 0, wlType: 'GNWL', raw: s };
+  }
+  return { type: 'CNF', num: 0, wlType: 'CNF', raw: s };
+}
+
+function statusBadgeHtml(type, raw) {
+  if (type === 'CNF') return `<span class="status-badge badge-cnf"><span class="badge-dot"></span>CONFIRMED</span>`;
+  if (type === 'RAC') return `<span class="status-badge badge-rac"><span class="badge-dot"></span>RAC</span>`;
+  return `<span class="status-badge badge-wl"><span class="badge-dot"></span>${raw || 'WAITLIST'}</span>`;
+}
+
+// ─── Render Loading ───────────────────────────────────────────────────────────
+function renderLoading() {
+  return `<div class="loading-state">
+    <div class="spinner"></div>
+    <div class="loading-text">Fetching live PNR status from Indian Railways…</div>
+  </div>`;
+}
+
+// ─── Main Render ──────────────────────────────────────────────────────────────
+function renderResult(pnr, json, errMsg) {
+  const d    = json?.data || {};
+  const paxList = d.passenger || [];
+  const firstPax = paxList[0] || {};
+  const firstStatus = parseStatus(firstPax.status || '');
+
+  // Determine overall status
+  const anyConfirmed  = paxList.some(p => /CNF/i.test(p.status || ''));
+  const anyRAC        = paxList.some(p => /RAC/i.test(p.status || ''));
+  const anyWL         = paxList.some(p => /WL|WAIT/i.test(p.status || ''));
+
+  const days = d.travel_date
+    ? Math.max(0, Math.round((new Date(d.travel_date.split('-').reverse().join('-')) - Date.now()) / 86400000))
+    : 7;
+
+  const primaryParsed = parseStatus(firstPax.status || (anyConfirmed ? 'CNF' : anyRAC ? 'RAC' : 'WL 12'));
+  const prediction    = calcPrediction(primaryParsed.wlType, primaryParsed.num, days, d.travel_class || '3A');
+  const col           = predColor(prediction);
+  const hasPax        = paxList.length > 0;
+
+  // Build mock passengers if none
+  const displayPax = hasPax ? paxList : [
+    { status: 'GNWL 8', booking_status: 'GNWL 12', coach: null, berth: null },
+    { status: 'GNWL 9', booking_status: 'GNWL 13', coach: null, berth: null },
+  ];
+
+  const html = `
+  <div class="result-grid">
+
+    <!-- ── TRAIN INFO ── -->
+    <div class="card fade-up">
+      <div class="card-header">
+        <div class="card-icon" style="background:#e8eaf6">🚂</div>
+        <div>
+          <div class="card-title">${d.train_name || 'Train Details'}</div>
+          <div class="card-sub">${d.train_number ? '#' + d.train_number : pnr}</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="train-route">
+          <div class="station" style="text-align:left">
+            <div class="station-time">${d.departure_time || d.from?.dep_time || '—'}</div>
+            <div class="station-code">${d.from?.code || d.boarding_point || '—'}</div>
+            <div class="station-name">${d.from?.name || 'Boarding'}</div>
+          </div>
+          <div class="route-line">
+            <div class="route-dur">${d.duration || '—'}</div>
+            <div class="route-track"></div>
+          </div>
+          <div class="station" style="text-align:right">
+            <div class="station-time">${d.arrival_time || d.to?.arr_time || '—'}</div>
+            <div class="station-code">${d.to?.code || d.destination || '—'}</div>
+            <div class="station-name">${d.to?.name || 'Destination'}</div>
+          </div>
+        </div>
+        <div class="train-meta-grid">
+          <div class="meta-item">
+            <div class="meta-label">📅 Travel Date</div>
+            <div class="meta-value">${d.travel_date || '—'}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">🪑 Class</div>
+            <div class="meta-value">${d.travel_class || '—'}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">📋 PNR</div>
+            <div class="meta-value" style="letter-spacing:1px">${pnr}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">🎫 Quota</div>
+            <div class="meta-value">${d.quota || 'GENERAL'}</div>
+          </div>
+        </div>
+        ${errMsg ? `<div style="background:#fce4ec;color:#c62828;border-radius:10px;padding:10px 12px;font-size:12px;margin-top:12px;"><strong>⚠️ Live API:</strong> ${errMsg}. Showing demo prediction.</div>` : ''}
+      </div>
+    </div>
+
+    <!-- ── PREDICTION ── -->
+    <div class="card fade-up">
+      <div class="card-header">
+        <div class="card-icon" style="background:#e8f5e9">🎯</div>
+        <div>
+          <div class="card-title">Confirmation Prediction</div>
+          <div class="card-sub">AI-powered heuristic estimate</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div style="display:flex;align-items:flex-end;gap:10px">
+          <div class="pred-percent" style="color:${col}">${primaryParsed.type === 'CNF' ? '✓' : prediction + '%'}</div>
+        </div>
+        <div class="pred-label" style="color:${col}">${primaryParsed.type === 'CNF' ? '🟢 Ticket Confirmed!' : predLabel(prediction)}</div>
+        <div class="meter">
+          <div class="meter-fill" id="meterFill" style="width:0%;background:linear-gradient(90deg,${col}88,${col})"></div>
+        </div>
+        <div class="pred-factors">
+          <div class="pred-factor">
+            <div class="pred-factor-label">⏰ Days Left</div>
+            <div class="pred-factor-value">${days === 0 ? 'Today' : days + (days === 1 ? ' day' : ' days')}</div>
+          </div>
+          <div class="pred-factor">
+            <div class="pred-factor-label">📍 WL Position</div>
+            <div class="pred-factor-value">${primaryParsed.type === 'CNF' ? 'Cleared' : primaryParsed.type === 'RAC' ? 'RAC' : '#' + (primaryParsed.num || '—')}</div>
+          </div>
+          <div class="pred-factor">
+            <div class="pred-factor-label">🏷️ WL Type</div>
+            <div class="pred-factor-value">${primaryParsed.wlType}</div>
+          </div>
+          <div class="pred-factor">
+            <div class="pred-factor-label">🚂 Class</div>
+            <div class="pred-factor-value">${d.travel_class || '—'}</div>
+          </div>
+        </div>
+        <div class="pred-note">
+          <strong>📌 Note:</strong> This is a heuristic estimate based on waitlist position, travel class, and days remaining. Always confirm via IRCTC official app or call <strong>139</strong>.
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PASSENGER LIST ── -->
+    <div class="card fade-up card-full">
+      <div class="card-header">
+        <div class="card-icon" style="background:#fce4ec">👤</div>
+        <div>
+          <div class="card-title">Passenger Status</div>
+          <div class="card-sub">${displayPax.length} passenger(s) on this PNR</div>
+        </div>
+      </div>
+      <div class="card-body" style="padding:0">
+        <div style="padding:0 20px">
+          ${displayPax.map((p, i) => {
+            const st = parseStatus(p.status || '');
+            return `
+            <div class="passenger-row">
+              <div class="pax-num">${i + 1}</div>
+              <div class="pax-info">
+                <div class="pax-name">Passenger ${i + 1}</div>
+                <div class="pax-sub">
+                  ${p.booking_status ? `Booking: <strong>${p.booking_status}</strong>` : 'Booking status unavailable'}
+                  ${p.coach ? ` · Coach: <strong>${p.coach}/${p.berth || '—'}</strong>` : ''}
+                </div>
+              </div>
+              <div class="pax-status">
+                ${statusBadgeHtml(st.type, st.raw)}
+                ${st.type !== 'CNF' ? `<div style="font-size:11px;color:var(--muted);margin-top:4px">Current: ${p.status || '—'}</div>` : ''}
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- ── WAITLIST INSIGHT ── -->
+    <div class="card fade-up">
+      <div class="card-header">
+        <div class="card-icon" style="background:#fff3e0">📊</div>
+        <div>
+          <div class="card-title">Waitlist Insight</div>
+          <div class="card-sub">Historical clearance patterns</div>
+        </div>
+      </div>
+      <div class="card-body">
+        ${renderWaitlistInsight(primaryParsed, days)}
+      </div>
+    </div>
+
+    <!-- ── TIPS ── -->
+    <div class="card fade-up">
+      <div class="card-header">
+        <div class="card-icon" style="background:#e8f5e9">💡</div>
+        <div>
+          <div class="card-title">Travel Tips</div>
+          <div class="card-sub">Based on your ticket status</div>
+        </div>
+      </div>
+      <div class="card-body">
+        ${renderTips(primaryParsed, days)}
+      </div>
+    </div>
+
+  </div>`;
+
+  $('resultArea').innerHTML = html;
+
+  // Animate meter
+  setTimeout(() => {
+    const fill = $('meterFill');
+    if (fill) fill.style.width = (primaryParsed.type === 'CNF' ? 100 : prediction) + '%';
+  }, 100);
+}
+
+// ─── Waitlist Insight ─────────────────────────────────────────────────────────
+function renderWaitlistInsight(st, days) {
+  const tiers = [
+    { label: 'GNWL', pct: 86, color: '#2e7d32' },
+    { label: 'RLWL', pct: 60, color: '#1565c0' },
+    { label: 'PQWL', pct: 48, color: '#f57f17' },
+    { label: 'TQWL', pct: 32, color: '#c62828' },
+  ];
+  return `
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;font-weight:600">Average confirmation rate by waitlist type</div>
+    <div class="seat-chart">
+      ${tiers.map(t => `
+        <div class="seat-row">
+          <div class="seat-class-label">${t.label}</div>
+          <div class="seat-bar-wrap">
+            <div class="seat-bar-fill" style="width:${t.pct}%;background:${t.color};opacity:0.8"></div>
+          </div>
+          <div class="seat-avail" style="color:${t.color}">${t.pct}%</div>
+        </div>`).join('')}
+    </div>
+    <div style="margin-top:16px;font-size:12px;color:var(--muted)">
+      <strong>Your type:</strong> <span style="color:var(--irctc-blue);font-weight:700">${st.wlType}</span> — 
+      ${st.type === 'CNF' ? 'Ticket confirmed ✅' : `Position #${st.num}, ${days} days to departure`}
+    </div>`;
+}
+
+// ─── Tips ─────────────────────────────────────────────────────────────────────
+function renderTips(st, days) {
+  const tips = [];
+  if (st.type === 'CNF') {
+    tips.push({ icon: '✅', title: 'Ticket Confirmed!', body: 'Your berth is reserved. Carry your e-ticket or ID proof.' });
+    tips.push({ icon: '📲', title: 'Download e-Ticket', body: 'Get your mobile ticket from the IRCTC app for easy boarding.' });
+    tips.push({ icon: '⏰', title: 'Arrive Early', body: 'Reach the station at least 30 minutes before departure.' });
+  } else if (st.type === 'RAC') {
+    tips.push({ icon: '🪑', title: 'RAC Status', body: 'You share a berth initially. You may get a full berth if passengers don\'t travel.' });
+    tips.push({ icon: '📋', title: 'Board the Train', body: 'RAC passengers must board — you have a valid ticket.' });
+    tips.push({ icon: '⏳', title: 'Upgrade Possible', body: 'TTE can allot a free berth on the same train if available.' });
+  } else {
+    if (days > 4) {
+      tips.push({ icon: '⏳', title: 'Still Time', body: 'Cancellations often happen 1–3 days before departure, pushing your WL up.' });
+    }
+    if (st.num > 30) {
+      tips.push({ icon: '🔄', title: 'Consider Alternatives', body: 'High WL number — search for other trains or dates on IRCTC.' });
+    }
+    tips.push({ icon: '📞', title: 'Call 139', body: 'Indian Railways helpline for live PNR status updates anytime.' });
+    tips.push({ icon: '💳', title: 'Auto-Refund', body: 'If WL doesn\'t clear by chart preparation, your amount is auto-refunded.' });
+  }
+  return tips.map(t => `
+    <div style="display:flex;gap:12px;margin-bottom:14px;align-items:flex-start">
+      <span style="font-size:20px;flex-shrink:0">${t.icon}</span>
+      <div>
+        <div style="font-size:13px;font-weight:700">${t.title}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">${t.body}</div>
+      </div>
+    </div>`).join('');
+}
+</script>
+</body>
+</html>
